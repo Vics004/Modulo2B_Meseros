@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modulo2B_Meseros", "Modulo2B_Meseros.csproj", "{D1DA1E2A-B179-4BC9-9604-8B258842459A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D1DA1E2A-B179-4BC9-9604-8B258842459A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1DA1E2A-B179-4BC9-9604-8B258842459A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1DA1E2A-B179-4BC9-9604-8B258842459A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1DA1E2A-B179-4BC9-9604-8B258842459A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DCBA9F75-C2B8-4785-A4C7-A203A1EFF76A}
+	EndGlobalSection
+EndGlobal
