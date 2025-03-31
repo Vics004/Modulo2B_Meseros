@@ -8,8 +8,8 @@ namespace Modulo2B_Meseros.Models
         [Key]
         public int empleadoId { get; set; }
         public string? nombre { get; set; }
+        public string? contrasenia { get; set; }
         public string? rol { get; set; }
         public DateOnly fechaContratacion { get; set; }
-
     }
 }
