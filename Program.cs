@@ -6,6 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromSeconds(3600);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddDbContext<DulceSaborDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DulceSaborDbConnection")));
 
 var app = builder.Build();
@@ -25,8 +34,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+
+app.UseSession();
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=login}/{action=Autenticar}/{id?}");
 
 app.Run();
