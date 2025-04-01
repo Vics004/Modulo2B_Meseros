@@ -7,8 +7,8 @@ namespace Modulo2B_Meseros.Models
     {
         [Key]
         public int mesaId { get; set; }
-        public string? numeroMesa { get; set; }
-        public string? capacidad { get; set; }
+        public int numeroMesa { get; set; }
+        public int capacidad { get; set; }
         public string? estado { get; set; }
     }
 }
