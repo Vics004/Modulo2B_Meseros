@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Pedido";
+    var pedido = (dynamic)ViewData["pedidoDetalle"];
+}
+
+<h2 style="color: orange; font-weight: bold; font-size: 3rem;">Pedido</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Mesa @pedido.NumeroMesa</h5>
+        <p class="card-text">Empleado: @pedido.NombreEmpleado</p>
+        <p class="card-text">Hora inicio: @pedido.Pedido.fechaHoraInicio.ToString("g")</p>
+        <p class="card-text">Total: @pedido.Pedido.total.ToString("C")</p>
+    </div>
+</div>
+
+<div class="mb-3">
+
+    <button class="btn btn-lg mt-3" style="background-color: orange; color: white;">Ver Platillos</button>
+
+    <form asp-action="CerrarPedido" method="post" class="d-inline">
+        <input type="hidden" name="pedidoId" value="@pedido.Pedido.pedidoId" />
+        <button type="submit" class="btn btn-lg mt-3" style="background-color: orangered; color: white;">Cerrar pedido</button>
+    </form>
+</div>

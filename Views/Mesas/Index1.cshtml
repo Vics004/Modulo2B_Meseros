@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Mesas Disponibles";
+}
+
+<h1 style="color: orange; font-weight: bold; font-size: 3rem;">Dulce Sabor</h1>
+
+    <div>
+        <h3 style="color: orange;">Mesas Disponibles</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Mesa</th>
+                    <th>Capacidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var mesa in (IEnumerable<dynamic>)ViewData["listadoMesasDisponibles"])
+                {
+                    <tr>
+                        <td>Mesa @mesa.numeroMesa</td>
+                        <td>@mesa.capacidad</td>
+                        <td>
+                            @Html.ActionLink("Nuevo Pedido", "AbrirPedido", new { mesaId = mesa.mesaId }, new { @class = "btn btn-lg mt-3", @style = "background-color: orange; color: white;" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
