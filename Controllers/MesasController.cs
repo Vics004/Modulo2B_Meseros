@@ -41,6 +41,7 @@ namespace Modulo2B_Meseros.Controllers
             return View();
         }
 
+        [Autenticacion]
         public IActionResult Index1()
         {
             var mesasDisponibles = _db.mesas
