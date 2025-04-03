@@ -1,0 +1,100 @@
+﻿@{
+    var categorias = ViewBag.Categorias as List<categoria>;
+    var subCategorias = ViewBag.SubCategorias as List<subCategoria>;
+    var items = ViewBag.Items as List<item>;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Categorías -->
+        <div class="col-md-3">
+            <h3 class="text-primary">Categorías</h3>
+            <div class="list-group">
+                @foreach (var categoria in categorias)
+                {
+                    <a class="list-group-item list-group-item-action"
+                       asp-action="Menu"
+                       asp-route-categoriaId="@categoria.categoriaId">
+                        @categoria.nombre
+                    </a>
+                }
+            </div>
+        </div>
+
+        <!-- Subcategorías -->
+        <div class="col-md-3">
+            <h3 class="text-primary">Subcategorías</h3>
+            @if (subCategorias.Any())
+            {
+                <div class="list-group">
+                    @foreach (var subCategoria in subCategorias)
+                    {
+                        <a class="list-group-item list-group-item-action"
+                           asp-action="Menu"
+                           asp-route-categoriaId="@ViewContext.RouteData.Values["categoriaId"]"
+                           asp-route-subCategoriaId="@subCategoria.subCategoriaId">
+                            @subCategoria.nombre
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Seleccione una categoría.</p>
+            }
+        </div>
+
+        <!-- Ítems -->
+        <div class="col-md-6">
+            <h3 class="text-primary">Ítems</h3>
+            <form method="post" asp-controller="detalle_pedido" asp-action="Siguiente" id="itemsForm">
+                <div class="row">
+                    @if (items.Any())
+                    {
+                        @foreach (var item in items)
+                        {
+                            <div class="col-md-6 mb-3">
+                                <div class="card shadow-sm">
+                                    
+                                    <div class="card-body">
+                                        <h5 class="card-title">@item.nombre</h5>
+                                        <input type="checkbox" name="seleccionados" value="@item.itemId"
+                                               class="form-check-input seleccionarItem"
+                                        @if (TempData["seleccionados"] != null && ((List<int>)TempData["seleccionados"]).Contains(item.itemId))
+                                        {
+                                            <text>checked</text>
+                                        }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Seleccione una subcategoría.</p>
+                    }
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3 w-100" id="btnSiguiente" disabled>
+                    Siguiente
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Deshabilitar el botón hasta que se seleccione un ítem
+    document.addEventListener("DOMContentLoaded", function () {
+        let checkboxes = document.querySelectorAll(".seleccionarItem");
+        let btnSiguiente = document.getElementById("btnSiguiente");
+
+        checkboxes.forEach(chk => {
+            chk.addEventListener("change", function () {
+                let seleccionados = document.querySelectorAll(".seleccionarItem:checked").length;
+                btnSiguiente.disabled = seleccionados === 0;
+            });
+        });
+    });
+</script>

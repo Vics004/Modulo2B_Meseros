@@ -15,7 +15,7 @@ namespace Modulo2B_Meseros.Models
         public DbSet<mesas> mesas { get; set; }
         public DbSet<pedido> pedido { get; set; }
         public DbSet<categoria> categoria { get; set; }
-        public DbSet<subCategoria> subCateria { get; set; }
+        public DbSet<subCategoria> subCategoria { get; set; }
         public DbSet<promociones> promociones { get; set; }
         public DbSet<item> item { get; set; }
     }

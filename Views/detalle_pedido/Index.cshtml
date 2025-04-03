@@ -1,0 +1,31 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<h1>Simulación de la Lista Mesa (Layout)</h1>
+<h3>hacer click para ver el pedido de la mesa</h3>
+@{
+
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Nombre</th>
+				<th>Acciones</th>
+
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var pedido in (IEnumerable<dynamic>)ViewData["listapedido"])
+			{
+				<tr>
+					<td>@pedido.MesaID</td>
+					<td>@pedido.Mesa</td>
+					<td>
+						<a asp-action="Indexdetalle" asp-route-id="@pedido.PedidoId">Visualizar</a> |
+						<a asp-action="Eliminar" asp-route-id="@pedido.MesaID">Eliminar</a>
+					</td>
+				</tr>
+
+			}
+	</table>
+}
