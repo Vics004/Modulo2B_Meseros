@@ -119,6 +119,7 @@ namespace Modulo2B_Meseros.Controllers
             if (pedido != null)
             {
                 pedido.fechaHoraFinal = DateTime.Now;
+                pedido.empleadoIdFinal = HttpContext.Session.GetInt32("empleadoId") ?? 0;
                 pedido.estado = true;
 
                 var mesa = _db.mesas.Find(pedido.mesaId);
