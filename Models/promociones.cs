@@ -7,10 +7,9 @@ namespace Modulo2B_Meseros.Models
     {
         [Key]
         public int promocionId { get; set; }
-        public DateTime fechaInicio { get; set; }
-        public DateTime fechaFin { get; set; }
+        public DateTime? fechaInicio { get; set; }
+        public DateTime? fechaFin { get; set; }
         public string? restricciones { get; set; }
         public int itemId { get; set; }
-
     }
 }
