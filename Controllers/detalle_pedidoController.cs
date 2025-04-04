@@ -146,6 +146,7 @@ namespace Modulo2B_Meseros.Controllers
             var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
                             join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
                             join E in _DulceSaborDbContexto.estado_pedido on dp.estadoPedidoId equals E.estadopedidoId
+                            join SC in _DulceSaborDbContexto.subCategoria on I.subCategoriaId equals SC.subCategoriaId
                             where dp.pedidoId == id && I.subCategoriaId == subid
                             select new
                             {
@@ -153,8 +154,10 @@ namespace Modulo2B_Meseros.Controllers
                                 Item = dp.itemId,
                                 Nombre = I.nombre,
                                 Precio = I.precio,
-                                Estado = E.nombre
-
+                                Comentario = dp.comentario,
+                                Estado = E.nombre,
+                                SubId = I.subCategoriaId,
+                                SubCategoriaNombre = SC.nombre
                             }).ToList();
             ViewData["listadetalle2"] = detalleP;
 
@@ -171,114 +174,37 @@ namespace Modulo2B_Meseros.Controllers
             _DulceSaborDbContexto.SaveChanges();
             return RedirectToAction("Index");
         }
-    }
-}
-/*
-private readonly equiposContext _equiposContexto;
-public equiposController(equiposContext equiposContexto)
-{
-    _equiposContexto = equiposContexto;
-}
-/// <summary>
-///  Endpoint que retorna
-/// </summary>
-/// <returns></returns>
-[HttpGet]
-[Route("GetAll")]
-public IActionResult Get()
-{
-    List<equipos> listadoEquipo = (from e in _equiposContexto.equipos
-                                    select e).ToList();
-    if (listadoEquipo.Count == 0)
-    {
-        return NotFound();
-    }
-    return Ok(listadoEquipo);
-}
-[HttpGet]
-[Route("GetById/{id}")]
-public IActionResult Get(int id)
-{
-    equipos? equipo = (from e in _equiposContexto.equipos
-                       where e.id_equipos == id
-                       select e).FirstOrDefault();
-    if (equipo == null)
-    {
-        return NotFound();
-    }
-    return Ok(equipo);
-}
-[HttpGet]
-[Route("Find/{filtro}")]
-public IActionResult FindByDescription(string filtro)
-{
-    equipos? equipo = (from e in _equiposContexto.equipos
-                       where e.descripcion.Contains(filtro)
-                       select e).FirstOrDefault();
-    if (equipo == null)
-    {
-        return NotFound();
-    }
-    return Ok(equipo);
-}
-[HttpPost]
-[Route("Add")]
-public IActionResult GuardarEquipo([FromBody] equipos equipo)
-{
-    try
-    {
-        _equiposContexto.equipos.Add(equipo);
-        _equiposContexto.SaveChanges();
-        return Ok(equipo);
-    }//Esto es para entender mejor el error(solo da mas info)
-    catch (DbUpdateException dbEx)
-    {
-        return BadRequest(dbEx.InnerException?.Message ?? dbEx.Message);
-    }
-    catch (Exception ex)
-    {
-        return BadRequest(ex.Message);
-    }
-}
-[HttpPut]
-[Route("actualizar/{id}")]
-public IActionResult ActualizarEquipo(int id,  [FromBody] equipos equipoModificar)
-{
-    equipos? equipoActual = (from e in _equiposContexto.equipos
-                             where e.id_equipos == id 
-                             select e).FirstOrDefault();
-    if ( equipoActual == null)
-    {
-        return NotFound();
-    }
-    equipoActual.nombre = equipoModificar.nombre;
-    equipoActual.descripcion = equipoModificar.descripcion;
-    equipoActual.marca_id = equipoModificar.marca_id;
-    equipoActual.tipo_equipo_id = equipoModificar.tipo_equipo_id;
-    equipoActual.anio_compra = equipoModificar.anio_compra;
-    equipoActual.costo = equipoModificar.costo;
+        [HttpPost]
+        public IActionResult Actualizar(int detalleId, int subID, [Bind("dePedidoId, comentario")] detalle_pedido detPedido)
+        {
+            var pedidoExistente = (from dp in _DulceSaborDbContexto.detalle_pedido
+                                   where dp.dePedidoId == detalleId
+                                   select dp).FirstOrDefault();
+            if (pedidoExistente == null)
+            {
+                return NotFound();
+            }
+            int id = pedidoExistente.pedidoId, subid = subID;
 
-    _equiposContexto.Entry(equipoActual).State = EntityState.Modified;
-    _equiposContexto.SaveChanges();
-    return Ok(equipoModificar);
-}
-[HttpDelete]
-[Route("eliminar/{id}")]
-public IActionResult EliminarEquipo(int id)
-{
-    equipos? equipo = (from e in _equiposContexto.equipos
-                        where e.id_equipos == id
-                        select e).FirstOrDefault();
-    if(equipo == null)
-    {
-        return NotFound();
+            pedidoExistente.comentario = detPedido.comentario;
 
+            _DulceSaborDbContexto.Entry(pedidoExistente).State = EntityState.Modified;
+            _DulceSaborDbContexto.SaveChanges();
+            return RedirectToAction("Edit", new { id = id, subid = subid });
+        }
+        //Metodo para retornar a la vista de Edit
+        [HttpPost]
+        public IActionResult Return(int iddet)
+        {
+            var pedidoExistente = (from dp in _DulceSaborDbContexto.detalle_pedido
+                                   where dp.dePedidoId == iddet
+                                   select dp).FirstOrDefault();
+            if (pedidoExistente == null)
+            {
+                return NotFound();
+            }
+            int id = pedidoExistente.pedidoId;
+            return RedirectToAction("Indexdetalle", new { id = id });
+        }
     }
-    _equiposContexto.equipos.Attach(equipo);
-    _equiposContexto.equipos.Remove(equipo);
-    _equiposContexto.SaveChanges();
-
-    return Ok(equipo);
 }
- 
- */

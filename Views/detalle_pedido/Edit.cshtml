@@ -1,41 +1,72 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-<h1>Editar</h1>
-
-@{
-
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<th>Id</th>
-				<th>Nombre Item</th>
-				<th>Precio</th>
-				<th>Estado</th>
-				<th>Acciones</th>
-
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var pedido in (IEnumerable<dynamic>)ViewData["listadetalle2"])
-			{
-				<tr>
-					<td>@pedido.DetalleId</td>
-					<td>@pedido.Nombre</td>
-					<td>@pedido.Precio</td>
-					<td>@pedido.Estado</td>
-					<td>
-						<a asp-action="Indexdetalle" asp-route-id="@pedido.DetalleId">Editar comentario</a>
-					</td>
-					<td><img src="" alt="Img @pedido.Nombre" /></td>
-					<td>
-						<form asp-action="Delete" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este pedido?');">
-							<input type="hidden" name="id" value="@pedido.DetalleId" />
-							<button type="submit" class="btn btn-danger">Eliminar</button>
-						</form>
-					</td>
-				</tr>
-
-			}
-	</table>
+﻿@{
+    ViewData["Title"] = "Editar Pedido";
+    ViewData["TituloDetalle"] = ViewData["detallesAgrupapdos"];
+    var primerPedido = ((IEnumerable<dynamic>)ViewData["listadetalle2"])?.FirstOrDefault();
+    Layout = "~/Views/Shared/_Layoutdetalle.cshtml";
 }
+
+
+
+
+
+
+<div class="container">
+    <h1>Editar Pedido</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre Item</th>
+                <th>Precio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pedido in (IEnumerable<dynamic>)ViewData["listadetalle2"])
+            {
+                <tr>
+                    <td>@pedido.DetalleId</td>
+                    <td>@pedido.Nombre</td>
+                    <td>@pedido.Precio</td>
+                    <td>@pedido.Estado</td>
+                    <td>
+                        <form asp-action="Actualizar" method="post">
+                            <button type="button" class="btn btn-primary" onclick="toggleComentario(@pedido.DetalleId)">Ver comentario</button>
+                            <div id="comentario-@pedido.DetalleId" style="display: none; margin-top: 5px;">
+                                <textarea id="comentario-textarea-@pedido.DetalleId" name="comentario" class="form-control">@pedido.Comentario</textarea>
+                                <input type="hidden" name="detalleId" value="@pedido.DetalleId" />
+                                <input type="hidden" name="subID" id="subID" value="@pedido.SubId" />
+                                <button type="submit" class="btn btn-info mt-2">Ready</button>
+                            </div>
+                        </form>
+                    </td>
+                    <td>
+                        <form asp-action="Delete" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este pedido?');">
+                            <input type="hidden" name="id" value="@pedido.DetalleId" />
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <form asp-action="Return" method="post">
+        <input type="hidden" name="iddet" value="@primerPedido?.DetalleId" />
+        <button type="submit" class="btn btn-danger">Regresar</button>
+    </form>
+</div>
+
+<script>
+    function toggleComentario(id) {
+        var comentario = document.getElementById("comentario-" + id);
+        if (comentario.style.display === "none") {
+            comentario.style.display = "block";
+        } else {
+            comentario.style.display = "none";
+        }
+    }
+</script>
