@@ -16,7 +16,7 @@
 
 <div class="mb-3">
 
-    <button class="btn btn-lg mt-3" style="background-color: orange; color: white;">Ver Platillos</button>
+    @Html.ActionLink("Ver Platillos", "Indexdetalle", "detalle_pedido", new { id = pedido.Pedido.pedidoId }, new { @class = "btn btn-lg mt-3", style = "background-color: orange; color: white;" })
 
     <form asp-action="CerrarPedido" method="post" class="d-inline">
         <input type="hidden" name="pedidoId" value="@pedido.Pedido.pedidoId" />

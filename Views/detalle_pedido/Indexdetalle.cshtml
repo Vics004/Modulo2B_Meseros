@@ -5,6 +5,7 @@
 <h1>Simulación de la Lista de detalles</h1>
 <h3>hacer click para editar el item del detalle</h3>
 @{
+	var primerPedidoId = ((IEnumerable<dynamic>)ViewData["listadetalle"]).FirstOrDefault()?.PedidoId;
 	var itemsSeleccionados = ViewData["itemsSeleccionados"] as List<item>;
 
 	<table class="table table-striped">
@@ -46,5 +47,5 @@
 			}
 	</table>
 }
-<a href="@Url.Action("Menu", "detalle_pedido")" class="btn btn-secondary mt-3">Volver</a>
+<a href="@Url.Action("Menu", "detalle_pedido",new { id = primerPedidoId} )" class="btn btn-secondary mt-3">Volver</a>
 <button class="btn btn-success mt-3">Confirmar Pedido</button>

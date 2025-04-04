@@ -14,8 +14,14 @@ namespace Modulo2B_Meseros.Controllers
             _DulceSaborDbContexto = DulceSaborDbContexto;
         }
 
-        public IActionResult Menu(int? categoriaId, int? subCategoriaId)
+        public IActionResult Menu(int id, int? categoriaId, int? subCategoriaId)
         {
+
+
+
+            ViewBag.pedido_id = id;
+
+
             var categorias = _DulceSaborDbContexto.categoria.ToList();
             var subCategorias = categoriaId.HasValue
                 ? _DulceSaborDbContexto.subCategoria.Where(s => s.categoriaId == categoriaId).Distinct().ToList()
@@ -45,7 +51,7 @@ namespace Modulo2B_Meseros.Controllers
         }
 
 		[HttpPost]
-		public IActionResult Siguiente(List<int> seleccionados)
+		public IActionResult Siguiente(int pedidoId, List<int> seleccionados)
 		{
 			if (seleccionados == null || seleccionados.Count == 0)
 			{
@@ -54,8 +60,21 @@ namespace Modulo2B_Meseros.Controllers
 			}
             
             TempData["seleccionados"] = seleccionados;
+            //Guardar los items de la lista seleccionados en la tabla detalle_pedido
+            //usar un foreach para iterar la lista seleccionados
+            foreach (var itemId in seleccionados)
+            {
+                var detallePedido = new detalle_pedido
+                {
+                    pedidoId = pedidoId,
+                    itemId = itemId,
+                    estadoPedidoId = 1 // Estado inicial
+                };
+                _DulceSaborDbContexto.detalle_pedido.Add(detallePedido);
+                _DulceSaborDbContexto.SaveChanges();
+            }
 
-            return RedirectToAction("Indexdetalle", new { ids = string.Join(",", seleccionados) });
+            return RedirectToAction("Indexdetalle", new {id = pedidoId});
 		}
 
 
@@ -97,14 +116,8 @@ namespace Modulo2B_Meseros.Controllers
             return View();
         }
 
-        public IActionResult Indexdetalle(int id, string ids)
+        public IActionResult Indexdetalle(int id)
         {
-            if (string.IsNullOrEmpty(ids))
-            {
-                return RedirectToAction("Menu"); // Si no hay selección, regresa al menú
-            }
-
-            var seleccionadosIds = ids.Split(',').Select(int.Parse).ToList();
 
             var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
                             join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
@@ -119,10 +132,9 @@ namespace Modulo2B_Meseros.Controllers
 
                             }).ToList();
 
-            var itemsSeleccionados = _DulceSaborDbContexto.item.Where(i => seleccionadosIds.Contains(i.itemId)).ToList();
+           
 
             ViewData["listadetalle"] = detalleP;
-            ViewData["itemsSeleccionados"] = itemsSeleccionados;
 
             return View();
         }

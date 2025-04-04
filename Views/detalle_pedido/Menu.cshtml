@@ -48,6 +48,8 @@
         <div class="col-md-6">
             <h3 class="text-primary">Ítems</h3>
             <form method="post" asp-controller="detalle_pedido" asp-action="Siguiente" id="itemsForm">
+
+                <input type="hidden" name="pedidoId" value="@ViewBag.pedido_id" />
                 <div class="row">
                     @if (items.Any())
                     {
