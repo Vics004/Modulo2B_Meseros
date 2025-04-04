@@ -159,7 +159,32 @@ namespace Modulo2B_Meseros.Controllers
                                 SubId = I.subCategoriaId,
                                 SubCategoriaNombre = SC.nombre
                             }).ToList();
+
+            // Obtener todas las subcategorías y detalles para el menú lateral
+            var todosDetalles = (from dp in _DulceSaborDbContexto.detalle_pedido
+                                 join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
+                                 join SC in _DulceSaborDbContexto.subCategoria on I.subCategoriaId equals SC.subCategoriaId
+                                 where dp.pedidoId == id
+                                 select new
+                                 {
+                                     DetalleId = dp.dePedidoId,
+                                     Item = dp.itemId,
+                                     Nombre = I.nombre,
+                                     SubCategoriaId = I.subCategoriaId,
+                                     SubCategoriaNombre = SC.nombre
+                                 }).ToList();
+
+            // Agrupar por subcategoría para el menú lateral
+            var detallesAgrupados = todosDetalles
+                .GroupBy(d => d.SubCategoriaNombre)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(d => (object)new { d.DetalleId, d.Item, d.Nombre, d.SubCategoriaId, d.SubCategoriaNombre }).ToList()
+                );
+
+            ViewData["detallesAgrupados"] = detallesAgrupados;
             ViewData["listadetalle2"] = detalleP;
+            ViewData["pedidoId"] = id;
 
 
             return View();

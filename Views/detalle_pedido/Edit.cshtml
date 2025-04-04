@@ -1,72 +1,265 @@
 ﻿@{
-    ViewData["Title"] = "Editar Pedido";
-    ViewData["TituloDetalle"] = ViewData["detallesAgrupapdos"];
-    var primerPedido = ((IEnumerable<dynamic>)ViewData["listadetalle2"])?.FirstOrDefault();
-    Layout = "~/Views/Shared/_Layoutdetalle.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<div class="container-fluid">
+    <div class="row">
+        <!-- 🟠 NAV LATERAL -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="position-sticky">
+                <h2 class="sidebar-title">Dulce Sabor</h2>
+                <ul class="nav flex-column">
+                    @foreach (var categoria in (Dictionary<string, List<dynamic>>)ViewData["detallesAgrupados"])
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(categoria.Key == ViewData["subCategoriaSeleccionada"]?.ToString() ? "active" : "")"
+                               href="@Url.Action("Edit", new { id = ViewData["pedidoId"], subid = categoria.Value.FirstOrDefault()?.SubCategoriaId })">
+                                <span class="dot"></span> @categoria.Key
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </nav>
 
+        <!-- 📌 CONTENIDO PRINCIPAL -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <h4 class="text-orange fw-bold">Detalle Pedido <span class="text-secondary">Dulce Sabor</span></h4>
 
-
-
-
-<div class="container">
-    <h1>Editar Pedido</h1>
-
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre Item</th>
-                <th>Precio</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
             @foreach (var pedido in (IEnumerable<dynamic>)ViewData["listadetalle2"])
             {
-                <tr>
-                    <td>@pedido.DetalleId</td>
-                    <td>@pedido.Nombre</td>
-                    <td>@pedido.Precio</td>
-                    <td>@pedido.Estado</td>
-                    <td>
-                        <form asp-action="Actualizar" method="post">
-                            <button type="button" class="btn btn-primary" onclick="toggleComentario(@pedido.DetalleId)">Ver comentario</button>
-                            <div id="comentario-@pedido.DetalleId" style="display: none; margin-top: 5px;">
-                                <textarea id="comentario-textarea-@pedido.DetalleId" name="comentario" class="form-control">@pedido.Comentario</textarea>
-                                <input type="hidden" name="detalleId" value="@pedido.DetalleId" />
-                                <input type="hidden" name="subID" id="subID" value="@pedido.SubId" />
-                                <button type="submit" class="btn btn-info mt-2">Ready</button>
-                            </div>
-                        </form>
-                    </td>
-                    <td>
-                        <form asp-action="Delete" method="post" onsubmit="return confirm('¿Estás seguro de eliminar este pedido?');">
-                            <input type="hidden" name="id" value="@pedido.DetalleId" />
-                            <button type="submit" class="btn btn-danger">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                <div class="pedido-card">
+                    <!-- 🔵 Icono inicial -->
+                    <div class="pedido-icon">A</div>
 
-    <form asp-action="Return" method="post">
-        <input type="hidden" name="iddet" value="@primerPedido?.DetalleId" />
-        <button type="submit" class="btn btn-danger">Regresar</button>
-    </form>
+                    <!-- ℹ️ Info del pedido -->
+                    <div class="pedido-info">
+                        <h5 class="mb-1">@pedido.Nombre</h5>
+                        <p class="precio">$@pedido.Precio</p>
+                    </div>
+
+                    <!-- 🟠 Estado -->
+                    <span class="estado">@pedido.Estado</span>
+
+                    <!-- ✏️ Botón para comentario -->
+                    <button type="button" class="btn btn-sm edit-btn" onclick="toggleComentario(@pedido.DetalleId)">
+                        ✏️ Editar comentario
+                    </button>
+
+                    <!-- 📸 Imagen del pedido -->
+                    <div class="pedido-img">
+                        <img src="ruta-de-tu-imagen" alt="img">
+                    </div>
+
+                    <!-- 🗑️ Botón eliminar -->
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('¿Eliminar este pedido?');">
+                        <input type="hidden" name="id" value="@pedido.DetalleId" />
+                        <button type="submit" class="delete-btn">🗑️</button>
+                    </form>
+
+                    <!-- 📝 Comentario oculto -->
+                    <div id="comentario-@pedido.DetalleId" class="comentario-box">
+                        <form asp-action="Actualizar" method="post">
+                        <textarea id="comentario-textarea-@pedido.DetalleId" name="comentario" class="form-control">@pedido.Comentario</textarea>
+                            <input type="hidden" name="detalleId" value="@pedido.DetalleId" />
+                            <input type="hidden" name="subID" id="subID" value="@pedido.SubId" />
+                        <button type="submit" class="btn btn-info mt-1">Guardar</button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+            <!-- 🔙 Botón regresar -->
+            <form asp-action="Return" method="post">
+                <input type="hidden" name="iddet" value="@((ViewData["listadetalle2"] as IEnumerable<dynamic>)?.FirstOrDefault()?.DetalleId)" />
+                <button type="submit" class="btn btn-secondary regresar-btn">Regresar</button>
+            </form>
+        </main>
+    </div>
 </div>
 
 <script>
     function toggleComentario(id) {
         var comentario = document.getElementById("comentario-" + id);
-        if (comentario.style.display === "none") {
-            comentario.style.display = "block";
-        } else {
-            comentario.style.display = "none";
-        }
+        comentario.style.display = (comentario.style.display === "none" || comentario.style.display === "") ? "block" : "none";
     }
 </script>
+<style>
+    /* 📌 Sidebar */
+    .sidebar {
+        background: #F9F9F9;
+        border-right: 1px solid #ddd;
+        min-height: 100vh;
+        padding-top: 15px;
+    }
+
+    .sidebar-title {
+        color: #FF9800;
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        padding-bottom: 15px;
+    }
+
+    .nav-link {
+        color: #333;
+        padding: 12px;
+        border-radius: 5px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        transition: background 0.3s ease;
+    }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #FF9800;
+            color: white;
+        }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        background: #FF9800;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    /* 📦 Tarjetas de pedidos */
+    .pedido-card {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        background: #F8EFFF;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+        position: relative;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Mantener los elementos principales visibles */
+    .pedido-icon,
+    .pedido-info,
+    .estado {
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
+
+    .pedido-icon {
+        width: 40px;
+        height: 40px;
+        background: #FF9800;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .pedido-info {
+        flex-grow: 1;
+        min-width: 100px;
+        max-width: 30%;
+    }
+
+    .precio {
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* 🟠 Estado del pedido */
+    .estado {
+        background: #FF9800;
+        color: white;
+        border-radius: 15px;
+        padding: 5px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    /* ✏️ Botón de editar comentario */
+    .edit-btn {
+        background: #666;
+        color: white;
+        border: none;
+        padding: 7px 12px;
+        font-size: 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        margin-left: auto;
+    }
+
+        .edit-btn:hover {
+            background: #444;
+        }
+
+    /* 📸 Imagen del pedido */
+    .pedido-img img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        margin-left: 10px;
+    }
+
+    /* 🗑️ Botón eliminar */
+    .delete-btn {
+        background: none;
+        border: none;
+        color: red;
+        cursor: pointer;
+        font-size: 18px;
+        transition: color 0.3s ease;
+        margin-left: auto;
+    }
+
+        .delete-btn:hover {
+            color: darkred;
+        }
+
+    /* 📝 Caja de comentario mejorada */
+    .comentario-box {
+        display: none;
+        width: 100%;
+        margin-top: 15px;
+        order: 999;
+        flex-basis: 100%;
+        position: relative;
+    }
+
+        .comentario-box form {
+            width: 50%;
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .comentario-box textarea {
+            width: 100%;
+            height: 60px;
+            max-height: 120px;
+            overflow-y: auto;
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: none;
+        }
+
+        .comentario-box button {
+            align-self: flex-end;
+            margin-top: 5px;
+        }
+
+    /* 🔙 Botón regresar */
+    .regresar-btn {
+        width: 100%;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+
+</style>
