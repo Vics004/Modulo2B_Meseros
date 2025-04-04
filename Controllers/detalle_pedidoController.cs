@@ -52,13 +52,12 @@ namespace Modulo2B_Meseros.Controllers
 				TempData["Error"] = "Debe seleccionar al menos un producto.";
 				return RedirectToAction("Menu");
 			}
-            // Guardar los ítems seleccionados en TempData para persistir entre redirecciones
+            
             TempData["seleccionados"] = seleccionados;
 
             return RedirectToAction("Indexdetalle", new { ids = string.Join(",", seleccionados) });
 		}
 
-		//
 
 		// Mostrar Subcategorías de una Categoría
 		public IActionResult SubCategorias(int categoriaId)
@@ -67,7 +66,7 @@ namespace Modulo2B_Meseros.Controllers
 				.Where(s => s.categoriaId == categoriaId)
 				.ToList();
 
-			return PartialView("_SubCategorias", subCategorias); // Devuelves una partial view para actualizar la sección dinámica
+			return PartialView("_SubCategorias", subCategorias); //actualizar la sección dinámica
 		}
 
 		// Mostrar Ítems de una Subcategoría
@@ -77,7 +76,7 @@ namespace Modulo2B_Meseros.Controllers
 				.Where(i => i.subCategoriaId == subCategoriaId)
 				.ToList();
 
-			return PartialView("_Items", items); // Devuelves una partial view para los ítems
+			return PartialView("_Items", items);
 		}
 
 		// GET: detalle_pedidoController
