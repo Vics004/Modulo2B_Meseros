@@ -61,17 +61,34 @@ namespace Modulo2B_Meseros.Controllers
 
 			TempData["seleccionados"] = seleccionados;
 
+            decimal total = 0;
+
 			foreach (var itemId in seleccionados)
 			{
-				var detallePedido = new detalle_pedido
-				{
-					pedidoId = pedidoId,
-					itemId = itemId,
-					estadoPedidoId = 1 // Estado inicial
-				};
-				_DulceSaborDbContexto.detalle_pedido.Add(detallePedido);
+                var item = _DulceSaborDbContexto.item.Find(itemId);
+                if (item != null)
+                {
+                    total += item.precio;
+                    var detallePedido = new detalle_pedido
+                    {
+                        pedidoId = pedidoId,
+                        itemId = itemId,
+                        estadoPedidoId = 1 // Estado inicial
+                    };
+                    _DulceSaborDbContexto.detalle_pedido.Add(detallePedido);
+                }
+				
 				_DulceSaborDbContexto.SaveChanges();
 			}
+
+            var pedido = _DulceSaborDbContexto.pedido.Find(pedidoId);
+            if (pedido != null)
+            {
+                pedido.total += total;
+            }
+
+            _DulceSaborDbContexto.SaveChanges();
+
 			return RedirectToAction("Pedido", "Mesas", new { pedidoId = pedidoId });
 		}
 
@@ -197,6 +214,18 @@ namespace Modulo2B_Meseros.Controllers
 			if (detalleP != null)
 			{
 				var pedidoId = detalleP.pedidoId;
+
+                var pedido = _DulceSaborDbContexto.pedido.FirstOrDefault(p => p.pedidoId == pedidoId);
+
+                if (pedido != null)
+                {
+                    var item = _DulceSaborDbContexto.item.FirstOrDefault(i => i.itemId == detalleP.itemId);
+                    if (item != null)
+                    {
+                        decimal subtotal = item.precio;
+                        pedido.total -= subtotal;
+                    }
+                }
 
 				_DulceSaborDbContexto.detalle_pedido.Remove(detalleP);
 				_DulceSaborDbContexto.SaveChanges();
