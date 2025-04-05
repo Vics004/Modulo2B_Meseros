@@ -72,6 +72,7 @@ namespace Modulo2B_Meseros.Controllers
                 empleadoId = HttpContext.Session.GetInt32("empleadoId") ?? 0,
                 fechaHoraInicio = DateTime.Now,
                 estado = false,
+                tipoPedido = "Local",
                 total = 0.00m
             };
 
@@ -107,7 +108,21 @@ namespace Modulo2B_Meseros.Controllers
                 }
             ).FirstOrDefault();
 
-            ViewData["pedidoDetalle"] = pedido;
+			var detalleP = (from dp in _db.detalle_pedido
+							join I in _db.item on dp.itemId equals I.itemId
+							where dp.pedidoId == pedidoId
+							select new
+							{
+								PedidoId = dp.pedidoId,
+								DetalleId = dp.dePedidoId,
+								Item = dp.itemId,
+								Nombre = I.nombre,
+								subCategoria = I.subCategoriaId
+
+							}).ToList();
+
+			ViewData["listadetalle"] = detalleP;
+			ViewData["pedidoDetalle"] = pedido;
             return View();
         }
 
@@ -121,6 +136,7 @@ namespace Modulo2B_Meseros.Controllers
                 pedido.fechaHoraFinal = DateTime.Now;
                 pedido.empleadoIdFinal = HttpContext.Session.GetInt32("empleadoId") ?? 0;
                 pedido.estado = true;
+                
 
                 var mesa = _db.mesas.Find(pedido.mesaId);
                 mesa.estado = "Disponible";
@@ -129,5 +145,6 @@ namespace Modulo2B_Meseros.Controllers
             }
             return RedirectToAction("Index");
         }
-    }
+
+	}
 }

@@ -58,23 +58,21 @@ namespace Modulo2B_Meseros.Controllers
 				TempData["Error"] = "Debe seleccionar al menos un producto.";
 				return RedirectToAction("Menu");
 			}
-            
-            TempData["seleccionados"] = seleccionados;
-            //Guardar los items de la lista seleccionados en la tabla detalle_pedido
-            //usar un foreach para iterar la lista seleccionados
-            foreach (var itemId in seleccionados)
-            {
-                var detallePedido = new detalle_pedido
-                {
-                    pedidoId = pedidoId,
-                    itemId = itemId,
-                    estadoPedidoId = 1 // Estado inicial
-                };
-                _DulceSaborDbContexto.detalle_pedido.Add(detallePedido);
-                _DulceSaborDbContexto.SaveChanges();
-            }
 
-            return RedirectToAction("Indexdetalle", new {id = pedidoId});
+			TempData["seleccionados"] = seleccionados;
+
+			foreach (var itemId in seleccionados)
+			{
+				var detallePedido = new detalle_pedido
+				{
+					pedidoId = pedidoId,
+					itemId = itemId,
+					estadoPedidoId = 1 // Estado inicial
+				};
+				_DulceSaborDbContexto.detalle_pedido.Add(detallePedido);
+				_DulceSaborDbContexto.SaveChanges();
+			}
+			return RedirectToAction("Pedido", "Mesas", new { pedidoId = pedidoId });
 		}
 
 
@@ -190,16 +188,24 @@ namespace Modulo2B_Meseros.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Delete(int id)
-        {
-            var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
-                            where dp.dePedidoId == id
-                            select dp).FirstOrDefault();
-            _DulceSaborDbContexto.detalle_pedido.Remove(detalleP);
-            _DulceSaborDbContexto.SaveChanges();
-            return RedirectToAction("Index");
-        }
-        [HttpPost]
+		public IActionResult Delete(int id)
+		{
+			var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
+							where dp.dePedidoId == id
+							select dp).FirstOrDefault();
+
+			if (detalleP != null)
+			{
+				var pedidoId = detalleP.pedidoId;
+
+				_DulceSaborDbContexto.detalle_pedido.Remove(detalleP);
+				_DulceSaborDbContexto.SaveChanges();
+				return RedirectToAction("Pedido", "Mesas", new { pedidoId = pedidoId });
+			}
+			return NotFound();
+		}
+
+		[HttpPost]
         public IActionResult Actualizar(int detalleId, int subID, [Bind("dePedidoId, comentario")] detalle_pedido detPedido)
         {
             var pedidoExistente = (from dp in _DulceSaborDbContexto.detalle_pedido
@@ -217,19 +223,19 @@ namespace Modulo2B_Meseros.Controllers
             _DulceSaborDbContexto.SaveChanges();
             return RedirectToAction("Edit", new { id = id, subid = subid });
         }
-        //Metodo para retornar a la vista de Edit
-        [HttpPost]
-        public IActionResult Return(int iddet)
-        {
-            var pedidoExistente = (from dp in _DulceSaborDbContexto.detalle_pedido
-                                   where dp.dePedidoId == iddet
-                                   select dp).FirstOrDefault();
-            if (pedidoExistente == null)
-            {
-                return NotFound();
-            }
-            int id = pedidoExistente.pedidoId;
-            return RedirectToAction("Indexdetalle", new { id = id });
-        }
-    }
+		//Metodo para retornar a la vista de Edit
+		[HttpPost]
+		public IActionResult Return(int iddet)
+		{
+			var pedidoExistente = (from dp in _DulceSaborDbContexto.detalle_pedido
+								   where dp.dePedidoId == iddet
+								   select dp).FirstOrDefault();
+			if (pedidoExistente == null)
+			{
+				return NotFound();
+			}
+			int id = pedidoExistente.pedidoId;
+			return RedirectToAction("Pedido", "Mesas", new { pedidoId = id });
+		}
+	}
 }

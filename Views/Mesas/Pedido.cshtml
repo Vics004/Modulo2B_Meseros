@@ -11,12 +11,63 @@
         <p class="card-text">Empleado: @pedido.NombreEmpleado</p>
         <p class="card-text">Hora inicio: @pedido.Pedido.fechaHoraInicio.ToString("g")</p>
         <p class="card-text">Total: @pedido.Pedido.total.ToString("C")</p>
+		<h3>Platillos:</h3>
+		@{
+			var primerPedidoId = ((IEnumerable<dynamic>)ViewData["listadetalle"]).FirstOrDefault()?.PedidoId;
+			var itemsSeleccionados = ViewData["itemsSeleccionados"] as List<item>;
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Id</th>
+						<th>ItemId</th>
+						<th>Nombre Item</th>
+						<th>Acciones</th>
+
+					</tr>
+				</thead>
+				<tbody>
+					@if (itemsSeleccionados != null && itemsSeleccionados.Any())
+					{
+						<tr>
+							<td colspan="4" class="bg-info text-white">
+								<h4>Ítems Seleccionados</h4>
+								<ul class="list-group">
+									@foreach (var item in itemsSeleccionados)
+									{
+										<li class="list-group-item">@item.nombre</li>
+									}
+								</ul>
+							</td>
+						</tr>
+					}
+
+					@foreach (var detalle in (IEnumerable<dynamic>)ViewData["listadetalle"])
+					{
+						<tr>
+							<td>@detalle.DetalleId</td>
+							<td>@detalle.Item</td>
+							<td>@detalle.Nombre</td>
+							<td>
+								<a asp-controller="detalle_pedido"
+								   asp-action="Edit"
+								   asp-route-id="@detalle.PedidoId"
+								   asp-route-subid="@detalle.subCategoria"
+								   class="btn btn-warning text-white">
+									Editar
+								</a>
+							</td>
+						</tr>
+					}
+			</table>
+		}
     </div>
+
 </div>
 
 <div class="mb-3">
 
-    @Html.ActionLink("Ver Platillos", "Indexdetalle", "detalle_pedido", new { id = pedido.Pedido.pedidoId }, new { @class = "btn btn-lg mt-3", style = "background-color: orange; color: white;" })
+    @Html.ActionLink("Añadir Platillos", "Menu", "detalle_pedido", new { id = pedido.Pedido.pedidoId }, new { @class = "btn btn-lg mt-3", style = "background-color: orange; color: white;" })
 
     <form asp-action="CerrarPedido" method="post" class="d-inline">
         <input type="hidden" name="pedidoId" value="@pedido.Pedido.pedidoId" />
