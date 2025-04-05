@@ -2,39 +2,45 @@
     var categorias = ViewBag.Categorias as List<categoria>;
     var subCategorias = ViewBag.SubCategorias as List<subCategoria>;
     var items = ViewBag.Items as List<item>;
+    int? categoriaId = ViewContext.RouteData.Values["categoriaId"] != null ? Convert.ToInt32(ViewContext.RouteData.Values["categoriaId"]) : (int?)null;
+    int? subCategoriaId = ViewContext.RouteData.Values["subCategoriaId"] != null ? Convert.ToInt32(ViewContext.RouteData.Values["subCategoriaId"]) : (int?)null;
 }
 
-<div class="container mt-4">
+<div class="container-fluid">
     <div class="row">
-        <!-- Categorías -->
-        <div class="col-md-3">
-            <h3 class="text-primary">Categorías</h3>
-            <div class="list-group">
-                @foreach (var categoria in categorias)
-                {
-                    <a class="list-group-item list-group-item-action"
-                       asp-action="Menu"
-                       asp-route-categoriaId="@categoria.categoriaId">
-                        @categoria.nombre
-                    </a>
-                }
+        <!--NAV LATERAL -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            <div class="position-sticky">
+                <h2 class="sidebar-title">Dulce Sabor</h2>
+                <ul class="nav flex-column">
+                    @foreach (var categoria in categorias)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link @(categoria.categoriaId == categoriaId ? "active" : "")"
+                               href="@Url.Action("Menu", new { id = ViewBag.pedido_id, categoriaId = categoria.categoriaId })">
+                                <span class="dot"></span> @categoria.nombre
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
-        </div>
+        </nav>
 
-        <!-- Subcategorías -->
-        <div class="col-md-3">
-            <h3 class="text-primary">Subcategorías</h3>
+        <!--CONTENIDO PRINCIPAL -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <h4 class="text-orange fw-bold">Añadir Platillos <span class="text-secondary">Dulce Sabor</span></h4>
+
             @if (subCategorias.Any())
             {
-                <div class="list-group">
+                <div class="row">
                     @foreach (var subCategoria in subCategorias)
                     {
-                        <a class="list-group-item list-group-item-action"
-                           asp-action="Menu"
-                           asp-route-categoriaId="@ViewContext.RouteData.Values["categoriaId"]"
-                           asp-route-subCategoriaId="@subCategoria.subCategoriaId">
-                            @subCategoria.nombre
-                        </a>
+                        <div class="col-md-4 mb-3">
+                            <a class="subcategoria-card @(subCategoria.subCategoriaId == subCategoriaId ? "active" : "")"
+                               href="@Url.Action("Menu", new { id = ViewBag.pedido_id, categoriaId = categoriaId, subCategoriaId = subCategoria.subCategoriaId })">
+                                @subCategoria.nombre
+                            </a>
+                        </div>
                     }
                 </div>
             }
@@ -42,33 +48,36 @@
             {
                 <p class="text-muted">Seleccione una categoría.</p>
             }
-        </div>
 
-        <!-- Ítems -->
-        <div class="col-md-6">
-            <h3 class="text-primary">Ítems</h3>
             <form method="post" asp-controller="detalle_pedido" asp-action="Siguiente" id="itemsForm">
-
                 <input type="hidden" name="pedidoId" value="@ViewBag.pedido_id" />
-                <div class="row">
+                <div class="row mt-4">
                     @if (items.Any())
                     {
                         @foreach (var item in items)
                         {
                             <div class="col-md-6 mb-3">
-                                <div class="card shadow-sm">
-                                    
-                                    <div class="card-body">
-                                        <h5 class="card-title">@item.nombre</h5>
-                                        <input type="checkbox" name="seleccionados" value="@item.itemId"
-                                               class="form-check-input seleccionarItem"
-                                        @if (TempData["seleccionados"] != null && ((List<int>)TempData["seleccionados"]).Contains(item.itemId))
-                                        {
-                                            <text>checked</text>
-                                        }
-                                        />
+                                <label class="pedido-card">
+                                    <!--Info del pedido -->
+                                    <div class="pedido-info">
+                                        <h5 class="mb-1">@item.nombre</h5>
+                                        <p class="precio">$@item.precio</p>
                                     </div>
-                                </div>
+
+                                    <!-- 📸 Imagen del pedido -->
+                                    <div class="pedido-img">
+                                        <img src="@item.url_img" alt="img">
+                                    </div>
+
+                                    <!-- Checkbox para seleccionar ítem -->
+                                    <input type="checkbox" name="seleccionados" value="@item.itemId"
+                                           class="form-check-input seleccionarItem invisible-checkbox"
+                                    @if (TempData["seleccionados"] != null && ((List<int>)TempData["seleccionados"]).Contains(item.itemId))
+                                    {
+                                        <text>checked</text>
+                                    }
+                                    />
+                                </label>
                             </div>
                         }
                     }
@@ -78,11 +87,21 @@
                     }
                 </div>
 
-                <button type="submit" class="btn btn-primary mt-3 w-100" id="btnSiguiente" disabled>
-                    Siguiente
+                <div class="d-flex justify-content-center mt-3">
+                    <button type="submit" class="btn btn-orange oval-btn me-2" id="btnSiguiente" disabled>
+                        Siguiente
+                    </button>
+                </div>
+            </form>
+
+            <!-- 🔙 Botón regresar -->
+            <form asp-controller="Mesas" asp-action="Pedido" method="post" class="d-flex justify-content-end mt-3">
+                <input type="hidden" name="pedidoId" value="@ViewBag.pedido_id" />
+                <button type="submit" class="btn btn-secondary oval-btn">
+                    Regresar
                 </button>
             </form>
-        </div>
+        </main>
     </div>
 </div>
 
@@ -96,7 +115,145 @@
             chk.addEventListener("change", function () {
                 let seleccionados = document.querySelectorAll(".seleccionarItem:checked").length;
                 btnSiguiente.disabled = seleccionados === 0;
+                chk.closest('.pedido-card').classList.toggle('selected', chk.checked);
             });
         });
     });
 </script>
+<style>
+    /* 📌 Sidebar */
+    .sidebar {
+        background: #F9F9F9;
+        border-right: 1px solid #ddd;
+        min-height: 100vh;
+        padding-top: 15px;
+    }
+
+    .sidebar-title {
+        color: #FF9800;
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+        padding-bottom: 15px;
+    }
+
+    .nav-link {
+        color: #333;
+        padding: 12px;
+        border-radius: 5px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        transition: background 0.3s ease;
+        text-decoration: none;
+    }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #FF9800;
+            color: white;
+        }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        background: #FF9800;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    /* 📦 Tarjetas de pedidos */
+    .pedido-card {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        background: #F8EFFF;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+        position: relative;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+
+        .pedido-card.selected {
+            border-color: #FF9800;
+            background-color: #FFF3E0;
+        }
+
+    /* Mantener los elementos principales visibles */
+    .pedido-info {
+        flex-grow: 1;
+        min-width: 100px;
+        max-width: 70%;
+    }
+
+    .precio {
+        color: #666;
+        font-size: 14px;
+    }
+
+    /* 📸 Imagen del pedido */
+    .pedido-img img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        margin-left: auto;
+    }
+
+    /* Checkbox invisible */
+    .invisible-checkbox {
+        display: none;
+    }
+
+    /* Botones ovalados */
+    .oval-btn {
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    /* Botón Siguiente anaranjado */
+    .btn-orange {
+        background-color: #FF9800;
+        color: white;
+        border: none;
+    }
+
+        .btn-orange:hover {
+            background-color: #e68900;
+        }
+
+    /* 🔙 Botón regresar */
+    .regresar-btn {
+        width: 100%;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    /* Estilo para subcategorías */
+    .subcategoria-card {
+        display: block;
+        padding: 10px 15px;
+        background: #F8EFFF;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        border: 2px solid transparent;
+        cursor: pointer;
+        font-size: 18px;
+        color: #000;
+        text-decoration: none;
+    }
+
+        .subcategoria-card:hover,
+        .subcategoria-card.active {
+            background-color: #FFF3E0;
+            border-color: #FF9800;
+            color: #000;
+        }
+</style>

@@ -16,12 +16,7 @@ namespace Modulo2B_Meseros.Controllers
 
         public IActionResult Menu(int id, int? categoriaId, int? subCategoriaId)
         {
-
-
-
             ViewBag.pedido_id = id;
-
-
             var categorias = _DulceSaborDbContexto.categoria.ToList();
             var subCategorias = categoriaId.HasValue
                 ? _DulceSaborDbContexto.subCategoria.Where(s => s.categoriaId == categoriaId).Distinct().ToList()
@@ -46,8 +41,6 @@ namespace Modulo2B_Meseros.Controllers
             ViewBag.Items = items;
 
             return View();
-            /*var categorias = _DulceSaborDbContexto.categoria.Distinct().ToList();
-            return View(categorias);*/
         }
 
 		[HttpPost]
