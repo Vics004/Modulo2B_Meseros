@@ -9,6 +9,7 @@ namespace Modulo2B_Meseros.Models
         public int itemId { get; set; }
         public decimal precio { get; set; }
         public string? nombre { get; set; }
+        public string? url_img { get; set; }    
         public int subCategoriaId { get; set; }
     }
 }

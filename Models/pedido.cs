@@ -13,6 +13,7 @@ namespace Modulo2B_Meseros.Models
         public DateTime? fechaHoraInicio { get; set; }
         public DateTime? fechaHoraFinal { get; set; }
         public bool estado { get; set; }
+        public string? tipoPedido {  get; set; } 
         public decimal total { get; set; }
     }
 }
