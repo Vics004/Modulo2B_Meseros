@@ -26,7 +26,18 @@ namespace Modulo2B_Meseros.Controllers
                 ? _DulceSaborDbContexto.item.Where(i => i.subCategoriaId == subCategoriaId).Distinct().ToList()
                 : new List<item>();
 
-            // Mantener la selección previa al usar TempData
+            
+            var itemIds = items.Select(i => i.itemId).ToList();
+            var promociones = _DulceSaborDbContexto.promociones
+                .Where(p => itemIds.Contains(p.itemId) &&
+                      p.fechaInicio <= DateTime.Now &&
+                      p.fechaFin >= DateTime.Now)
+                .ToList();
+
+            
+            ViewBag.Promociones = promociones;
+
+           
             if (TempData["seleccionados"] != null)
             {
                 var seleccionadosPrevios = TempData["seleccionados"] as List<int>;
@@ -42,8 +53,7 @@ namespace Modulo2B_Meseros.Controllers
 
             return View();
         }
-
-		[HttpPost]
+        [HttpPost]
 		public IActionResult Siguiente(int pedidoId, List<int> seleccionados)
 		{
 			if (seleccionados == null || seleccionados.Count == 0)

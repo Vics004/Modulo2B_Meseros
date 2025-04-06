@@ -4,6 +4,7 @@
     var items = ViewBag.Items as List<item>;
     int? categoriaId = ViewContext.RouteData.Values["categoriaId"] != null ? Convert.ToInt32(ViewContext.RouteData.Values["categoriaId"]) : (int?)null;
     int? subCategoriaId = ViewContext.RouteData.Values["subCategoriaId"] != null ? Convert.ToInt32(ViewContext.RouteData.Values["subCategoriaId"]) : (int?)null;
+   
 }
 
 <div class="container-fluid">
@@ -15,10 +16,10 @@
                 <ul class="nav flex-column">
                     @foreach (var categoria in categorias)
                     {
-                        <li class="nav-item">
+                        <li class="nav-item @(categoria == categorias.First() ? "primeracategoria" : "")">
                             <a class="nav-link @(categoria.categoriaId == categoriaId ? "active" : "")"
                                href="@Url.Action("Menu", new { id = ViewBag.pedido_id, categoriaId = categoria.categoriaId })">
-                                <span class="dot"></span> @categoria.nombre
+                               <span class="dot"></span> @categoria.nombre
                             </a>
                         </li>
                     }
@@ -29,6 +30,8 @@
         <!--CONTENIDO PRINCIPAL -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <h4 class="text-orange fw-bold">Añadir Platillos <span class="text-secondary">Dulce Sabor</span></h4>
+
+
 
             @if (subCategorias.Any())
             {
@@ -46,52 +49,80 @@
             }
             else
             {
-                <p class="text-muted">Seleccione una categoría.</p>
+                
+                <div class="alert alert-light text-center py-4">
+                    <i class="fas fa-info-circle text-muted fa-2x mb-2"></i>
+                    <p class="text-muted mb-0">Seleccione una categoría</p>
+                </div>
             }
+            
+
+       
+
 
             <form method="post" asp-controller="detalle_pedido" asp-action="Siguiente" id="itemsForm">
                 <input type="hidden" name="pedidoId" value="@ViewBag.pedido_id" />
                 <div class="row mt-4">
                     @if (items.Any())
                     {
-                        @foreach (var item in items)
+                        
+                        @foreach (var item in ViewBag.Items)
                         {
+                            var promocion = ((List<promociones>)ViewBag.Promociones)?.FirstOrDefault(p => p.itemId == item.itemId);
+
                             <div class="col-md-6 mb-3">
                                 <label class="pedido-card">
-                                    <!--Info del pedido -->
                                     <div class="pedido-info">
                                         <h5 class="mb-1">@item.nombre</h5>
                                         <p class="precio">$@item.precio</p>
+
+                                        @if (promocion != null)
+                                        {
+                                            <div class="promo-restrictions">
+                                                <small class="text-muted">Promoción válida:</small>
+                                                <small class="text-danger">@promocion.restricciones</small>
+                                                <br>
+                                                <small class="text-muted">
+                                                    Del @(promocion.fechaInicio?.ToString("dd/MM/yyyy") ?? "sin fecha")
+                                                    al @(promocion.fechaFin?.ToString("dd/MM/yyyy") ?? "sin fecha")
+                                                </small>
+                                            </div>
+                                        }
                                     </div>
 
-                                    <!-- 📸 Imagen del pedido -->
                                     <div class="pedido-img">
                                         <img src="@item.url_img" alt="img">
                                     </div>
 
-                                    <!-- Checkbox para seleccionar ítem -->
                                     <input type="checkbox" name="seleccionados" value="@item.itemId"
                                            class="form-check-input seleccionarItem invisible-checkbox"
                                     @if (TempData["seleccionados"] != null && ((List<int>)TempData["seleccionados"]).Contains(item.itemId))
                                     {
                                         <text>checked</text>
-                                    }
-                                    />
+                                    } />
                                 </label>
                             </div>
                         }
                     }
                     else
                     {
-                        <p class="text-muted">Seleccione una subcategoría.</p>
+                        
+                            <div class="alert alert-light text-center py-4">
+                                <i class="fas fa-info-circle text-muted fa-2x mb-2"></i>
+                                <p class="text-muted mb-0">Seleccione una subcategoría</p>
+                            </div>
+                       
+
+
                     }
                 </div>
 
-                <div class="d-flex justify-content-center mt-3">
+                <div class="d-flex justify-content-start mt-3">
                     <button type="submit" class="btn btn-orange oval-btn me-2" id="btnSiguiente" disabled>
                         Siguiente
                     </button>
                 </div>
+
             </form>
 
             <!-- 🔙 Botón regresar -->
@@ -255,5 +286,27 @@
             background-color: #FFF3E0;
             border-color: #FF9800;
             color: #000;
+        }
+
+    
+    .primeracategoria {
+        position: relative; 
+    }
+
+        .primeracategoria .nav-link:hover::after {
+            content: "Categorías disponibles";
+            position: absolute;
+            top: 100%; 
+            left: 0;
+            width: 100%; 
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 0; 
+            border-radius: 3px;
+            font-size: 12px;
+            text-align: center; 
+            z-index: 1000; 
+            box-sizing: border-box; 
+            white-space: nowrap; 
         }
 </style>

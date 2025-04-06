@@ -2,12 +2,16 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Bienvenido <strong>@ViewBag.nombre</strong></h1>
+<div class="text-center" style="background-color: #fff3e0; padding: 40px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <h1 class="display-4" style="color: #ef6c00;">
+        Bienvenido <strong>@ViewBag.nombre</strong>
+    </h1>
 
-    <h2>Tipo usuario: <strong>@ViewData["tipoUsuario"]</strong></h2>
+    <h2 style="color: #fb8c00;">
+        Cargo: <strong>@ViewData["tipoUsuario"]</strong>
+    </h2>
 
-
-
+    <p style="margin-top: 30px; font-size: 1.2em; color: #e65100;">
+        ¡Gracias por ser parte de <strong>Dulce Sabor</strong>! 🍰
+    </p>
 </div>
-
