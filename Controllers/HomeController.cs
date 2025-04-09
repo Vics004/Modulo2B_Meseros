@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Modulo2B_Meseros.Models;
 using System.Diagnostics;
+using static Modulo2B_Meseros.Servicios.AutenticationAttribute;
 
 namespace Modulo2B_Meseros.Controllers
 {
@@ -12,12 +13,12 @@ namespace Modulo2B_Meseros.Controllers
         {
             _logger = logger;
         }
-
+        [Autenticacion]
         public IActionResult Index()
         {
             return View();
         }
-
+        [Autenticacion]
         public IActionResult Privacy()
         {
             return View();

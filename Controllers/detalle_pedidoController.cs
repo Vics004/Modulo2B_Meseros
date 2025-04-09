@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Modulo2B_Meseros.Models;
+using static Modulo2B_Meseros.Servicios.AutenticationAttribute;
 
 namespace Modulo2B_Meseros.Controllers
 {
@@ -14,6 +15,7 @@ namespace Modulo2B_Meseros.Controllers
             _DulceSaborDbContexto = DulceSaborDbContexto;
         }
 
+        [Autenticacion]
         public IActionResult Menu(int id, int? categoriaId, int? subCategoriaId)
         {
             ViewBag.pedido_id = id;
@@ -53,6 +55,8 @@ namespace Modulo2B_Meseros.Controllers
 
             return View();
         }
+
+        [Autenticacion]
         [HttpPost]
 		public IActionResult Siguiente(int pedidoId, List<int> seleccionados)
 		{
@@ -96,8 +100,9 @@ namespace Modulo2B_Meseros.Controllers
 		}
 
 
-		// Mostrar Subcategorías de una Categoría
-		public IActionResult SubCategorias(int categoriaId)
+        // Mostrar Subcategorías de una Categoría
+        [Autenticacion]
+        public IActionResult SubCategorias(int categoriaId)
 		{
 			var subCategorias = _DulceSaborDbContexto.subCategoria
 				.Where(s => s.categoriaId == categoriaId)
@@ -106,8 +111,9 @@ namespace Modulo2B_Meseros.Controllers
 			return PartialView("_SubCategorias", subCategorias); //actualizar la sección dinámica
 		}
 
-		// Mostrar Ítems de una Subcategoría
-		public IActionResult Items(int subCategoriaId)
+        // Mostrar Ítems de una Subcategoría
+        [Autenticacion]
+        public IActionResult Items(int subCategoriaId)
 		{
 			var items = _DulceSaborDbContexto.item
 				.Where(i => i.subCategoriaId == subCategoriaId)
@@ -116,8 +122,9 @@ namespace Modulo2B_Meseros.Controllers
 			return PartialView("_Items", items);
 		}
 
-		// GET: detalle_pedidoController
-		public IActionResult Index()
+        [Autenticacion]
+        // GET: detalle_pedidoController
+        public IActionResult Index()
         {
             var pedido = (from p in _DulceSaborDbContexto.pedido
                           select new
@@ -136,6 +143,7 @@ namespace Modulo2B_Meseros.Controllers
 
 
         //Parte de Fer
+        [Autenticacion]
         public IActionResult Edit(int id, int subid)
         {
             var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
@@ -185,6 +193,7 @@ namespace Modulo2B_Meseros.Controllers
 
             return View();
         }
+        [Autenticacion]
         [HttpPost]
 		public IActionResult Delete(int id)
 		{
@@ -215,7 +224,8 @@ namespace Modulo2B_Meseros.Controllers
 			return NotFound();
 		}
 
-		[HttpPost]
+        [Autenticacion]
+        [HttpPost]
         public IActionResult Actualizar(int detalleId, int subID, [Bind("dePedidoId, comentario")] detalle_pedido detPedido)
         {
             var pedidoExistente = (from dp in _DulceSaborDbContexto.detalle_pedido
@@ -233,8 +243,9 @@ namespace Modulo2B_Meseros.Controllers
             _DulceSaborDbContexto.SaveChanges();
             return RedirectToAction("Edit", new { id = id, subid = subid });
         }
-		//Metodo para retornar a la vista de Edit
-		[HttpPost]
+        //Metodo para retornar a la vista de Edit
+        [Autenticacion]
+        [HttpPost]
 		public IActionResult Return(int iddet)
 		{
 			var pedidoExistente = (from dp in _DulceSaborDbContexto.detalle_pedido
