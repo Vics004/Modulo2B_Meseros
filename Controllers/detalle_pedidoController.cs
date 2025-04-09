@@ -134,29 +134,6 @@ namespace Modulo2B_Meseros.Controllers
             return View();
         }
 
-        public IActionResult Indexdetalle(int id)
-        {
-
-            var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
-                            join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
-                            where dp.pedidoId == id
-                            select new
-                            {
-                                PedidoId = dp.pedidoId,
-                                DetalleId = dp.dePedidoId,
-                                Item = dp.itemId,
-                                Nombre = I.nombre,
-                                subCategoria = I.subCategoriaId
-
-                            }).ToList();
-
-           
-
-            ViewData["listadetalle"] = detalleP;
-
-            return View();
-        }
-
 
         //Parte de Fer
         public IActionResult Edit(int id, int subid)
@@ -175,7 +152,8 @@ namespace Modulo2B_Meseros.Controllers
                                 Comentario = dp.comentario,
                                 Estado = E.nombre,
                                 SubId = I.subCategoriaId,
-                                SubCategoriaNombre = SC.nombre
+                                SubCategoriaNombre = SC.nombre,
+                                Itemurl = I.url_img
                             }).ToList();
 
             // Obtener todas las subcategorías y detalles para el menú lateral

@@ -4,7 +4,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        <!-- 🟠 NAV LATERAL -->
+        <!-- nav var-->
         <nav class="col-md-3 col-lg-2 d-md-block sidebar">
             <div class="position-sticky">
                 <h2 class="sidebar-title">Dulce Sabor</h2>
@@ -22,43 +22,40 @@
             </div>
         </nav>
 
-        <!-- 📌 CONTENIDO PRINCIPAL -->
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <h4 class="text-orange fw-bold">Detalle Pedido <span class="text-secondary">Dulce Sabor</span></h4>
-
+            <!-- Parte de los div dinamicos -->
             @foreach (var pedido in (IEnumerable<dynamic>)ViewData["listadetalle2"])
             {
                 <div class="pedido-card">
-                    <!-- 🔵 Icono inicial -->
-                    <div class="pedido-icon">A</div>
+                    <!-- Imagen (item) -->
+                    <div class="pedido-img">
+                        <img src="@pedido.Itemurl" alt="img">
+                    </div>
 
-                    <!-- ℹ️ Info del pedido -->
+                    <!-- Info del pedido -->
                     <div class="pedido-info">
                         <h5 class="mb-1">@pedido.Nombre</h5>
                         <p class="precio">$@pedido.Precio</p>
                     </div>
 
-                    <!-- 🟠 Estado -->
                     <span class="estado">@pedido.Estado</span>
 
-                    <!-- ✏️ Botón para comentario -->
+                    <!-- Botón para comentario -->
                     <button type="button" class="btn btn-sm edit-btn" onclick="toggleComentario(@pedido.DetalleId)">
                         ✏️ Editar comentario
                     </button>
 
-                    <!-- 📸 Imagen del pedido -->
-                    <div class="pedido-img">
-                        <img src="ruta-de-tu-imagen" alt="img">
-                    </div>
+                    
 
-                    <!-- 🗑️ Botón eliminar -->
+                    <!-- eliminar -->
                     <form asp-action="Delete" method="post" onsubmit="return confirm('⚠️ ¿Eliminar pedido? ⚠️\n\nEsta acción no se puede deshacer');">
                         <input type="hidden" name="id" value="@pedido.DetalleId" />
                         <button type="submit" class="delete-btn">🗑️</button>
                     </form>
 
 
-                    <!-- 📝 Comentario oculto -->
+                    <!-- Comentario-->
                     <div id="comentario-@pedido.DetalleId" class="comentario-box">
                         <form asp-action="Actualizar" method="post">
                         <textarea id="comentario-textarea-@pedido.DetalleId" name="comentario" class="form-control">@pedido.Comentario</textarea>
@@ -70,7 +67,7 @@
                 </div>
             }
 
-            <!-- 🔙 Botón regresar -->
+            <!-- regresar -->
             <form asp-action="Return" method="post">
                 <input type="hidden" name="iddet" value="@((ViewData["listadetalle2"] as IEnumerable<dynamic>)?.FirstOrDefault()?.DetalleId)" />
                 <button type="submit" class="btn btn-secondary regresar-btn">Regresar</button>
@@ -86,7 +83,7 @@
     }
 </script>
 <style>
-    /* 📌 Sidebar */
+    /*  Sidebar */
     .sidebar {
         background: #F9F9F9;
         border-right: 1px solid #ddd;
@@ -126,7 +123,7 @@
         margin-right: 8px;
     }
 
-    /* 📦 Tarjetas de pedidos */
+    /*  Tarjetas de pedidos */
     .pedido-card {
         display: flex;
         flex-wrap: wrap;
@@ -181,7 +178,7 @@
         white-space: nowrap;
     }
 
-    /* ✏️ Botón de editar comentario */
+    /*  Botón de editar comentario */
     .edit-btn {
         background: #666;
         color: white;
@@ -198,7 +195,7 @@
             background: #444;
         }
 
-    /* 📸 Imagen del pedido */
+    /*  Imagen del pedido */
     .pedido-img img {
         width: 50px;
         height: 50px;
@@ -206,7 +203,7 @@
         margin-left: 10px;
     }
 
-    /* 🗑️ Botón eliminar */
+    /* Botón eliminar */
     .delete-btn {
         background: none;
         border: none;
@@ -221,7 +218,7 @@
             color: darkred;
         }
 
-    /* 📝 Caja de comentario mejorada */
+    /* Caja de comentario */
     .comentario-box {
         display: none;
         width: 100%;
@@ -254,7 +251,7 @@
             margin-top: 5px;
         }
 
-    /* 🔙 Botón regresar */
+    /* Botón regresar */
     .regresar-btn {
         width: 100%;
         border-radius: 10px;
