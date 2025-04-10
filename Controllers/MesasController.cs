@@ -95,57 +95,100 @@ namespace Modulo2B_Meseros.Controllers
         [Autenticacion]
         public IActionResult Pedido(int pedidoId)
         {
-            var pedido = (
-                from p in _db.pedido
-                join m in _db.mesas on p.mesaId equals m.mesaId
-                join e in _db.empleados on p.empleadoId equals e.empleadoId
-                where p.pedidoId == pedidoId
-                select new
-                {
-                    Pedido = p,
-                    NumeroMesa = m.numeroMesa,
-                    NombreEmpleado = e.nombre
-                }
-            ).FirstOrDefault();
+            var pedido = (from p in _db.pedido
+                          join m in _db.mesas on p.mesaId equals m.mesaId
+                          join e in _db.empleados on p.empleadoId equals e.empleadoId
+                          where p.pedidoId == pedidoId
+                          select new
+                          {
+                              Pedido = p,
+                              NumeroMesa = m.numeroMesa,
+                              NombreEmpleado = e.nombre
+                          }).FirstOrDefault();
 
-			var detalleP = (from dp in _db.detalle_pedido
-							join I in _db.item on dp.itemId equals I.itemId
-							where dp.pedidoId == pedidoId
-							select new
-							{
-								PedidoId = dp.pedidoId,
-								DetalleId = dp.dePedidoId,
-								Item = dp.itemId,
-								Nombre = I.nombre,
-								subCategoria = I.subCategoriaId,
-                                Precio = I.precio,
-                                Url_img = I.url_img
-							}).ToList();
+            var detalleP = (from dp in _db.detalle_pedido
+                            join i in _db.item on dp.itemId equals i.itemId
+                            join ep in _db.estado_pedido on dp.estadoPedidoId equals ep.estadopedidoId
+                            where dp.pedidoId == pedidoId
+                            select new
+                            {
+                                PedidoId = dp.pedidoId,
+                                DetalleId = dp.dePedidoId,
+                                Item = dp.itemId,
+                                Nombre = i.nombre,
+                                Precio = i.precio,
+                                Url_img = i.url_img,
+                                subCategoria = i.subCategoriaId,
+                                EstadoPedidoId = ep.estadopedidoId,
+                                EstadoNombre = ep.nombre
+                            }).ToList();
 
-			ViewData["listadetalle"] = detalleP;
-			ViewData["pedidoDetalle"] = pedido;
+            ViewData["listadetalle"] = detalleP;
+            ViewData["pedidoDetalle"] = pedido;
+
             return View();
+        }
+
+        [HttpPost]
+        [Autenticacion]
+        public IActionResult MarcarComoEntregado(int detallePedidoId)
+        {
+
+            var detalle = (from dp in _db.detalle_pedido
+                           where dp.dePedidoId == detallePedidoId
+                           select dp).FirstOrDefault();
+
+            if (detalle != null)
+            {
+                detalle.estadoPedidoId = 4;
+                _db.SaveChanges();
+            }
+
+            return RedirectToAction("Pedido", new { pedidoId = detalle.pedidoId });
         }
 
         [HttpPost]
         [Autenticacion]
         public IActionResult CerrarPedido(int pedidoId)
         {
-            var pedido = _db.pedido.Find(pedidoId);
-            if (pedido != null)
+            var pedido = (from p in _db.pedido
+                          where p.pedidoId == pedidoId
+                          select p).FirstOrDefault();
+
+            if (pedido == null)
             {
-                pedido.fechaHoraFinal = DateTime.Now;
-                pedido.empleadoIdFinal = HttpContext.Session.GetInt32("empleadoId") ?? 0;
-                pedido.estado = true;
-                
-
-                var mesa = _db.mesas.Find(pedido.mesaId);
-                mesa.estado = "Disponible";
-
-                _db.SaveChanges();
+                return NotFound();
             }
-            return RedirectToAction("Index");
+
+            var detalles = (from dp in _db.detalle_pedido
+                            join ep in _db.estado_pedido on dp.estadoPedidoId equals ep.estadopedidoId
+                            where dp.pedidoId == pedidoId
+                            select new
+                            {
+                                EstadoId = ep.estadopedidoId
+                            }).ToList();
+
+            bool puedeCerrar = detalles.All(d => d.EstadoId == 4 || d.EstadoId == 5);
+
+            if (!puedeCerrar)
+            {
+                TempData["Error"] = "No se puede cerrar el pedido. Hay ítems pendientes.";
+                return RedirectToAction("Pedido", new { pedidoId });
+            }
+
+            pedido.fechaHoraFinal = DateTime.Now;
+            pedido.empleadoIdFinal = HttpContext.Session.GetInt32("empleadoId") ?? 0;
+            pedido.estado = true;
+
+            var mesa = (from m in _db.mesas
+                        where m.mesaId == pedido.mesaId
+                        select m).FirstOrDefault();
+            mesa.estado = "Disponible";
+
+            _db.SaveChanges();
+
+            return RedirectToAction("Index1");
         }
 
-	}
+    }
 }
