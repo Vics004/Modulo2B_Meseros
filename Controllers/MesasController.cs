@@ -91,45 +91,45 @@ namespace Modulo2B_Meseros.Controllers
             ViewData["pedidoDetalle"] = pedidoDetalle;
             return RedirectToAction("Pedido", new { pedidoId = nuevoPedido.pedidoId });
         }
+		[Autenticacion]
+		public IActionResult Pedido(int pedidoId)
+		{
+			var pedido = (from p in _db.pedido
+						  join m in _db.mesas on p.mesaId equals m.mesaId
+						  join e in _db.empleados on p.empleadoId equals e.empleadoId
+						  where p.pedidoId == pedidoId
+						  select new
+						  {
+							  Pedido = p,
+							  NumeroMesa = m.numeroMesa,
+							  NombreEmpleado = e.nombre
+						  }).FirstOrDefault();
 
-        [Autenticacion]
-        public IActionResult Pedido(int pedidoId)
-        {
-            var pedido = (from p in _db.pedido
-                          join m in _db.mesas on p.mesaId equals m.mesaId
-                          join e in _db.empleados on p.empleadoId equals e.empleadoId
-                          where p.pedidoId == pedidoId
-                          select new
-                          {
-                              Pedido = p,
-                              NumeroMesa = m.numeroMesa,
-                              NombreEmpleado = e.nombre
-                          }).FirstOrDefault();
+			var detalleP = (from dp in _db.detalle_pedido
+							join i in _db.item on dp.itemId equals i.itemId
+							join ep in _db.estado_pedido on dp.estadoPedidoId equals ep.estadopedidoId
+							where dp.pedidoId == pedidoId && ep.nombre != "Cancelado" 
+							select new
+							{
+								PedidoId = dp.pedidoId,
+								DetalleId = dp.dePedidoId,
+								Item = dp.itemId,
+								Nombre = i.nombre,
+								Precio = i.precio,
+								Url_img = i.url_img,
+								subCategoria = i.subCategoriaId,
+								EstadoPedidoId = ep.estadopedidoId,
+								EstadoNombre = ep.nombre
+							}).ToList();
 
-            var detalleP = (from dp in _db.detalle_pedido
-                            join i in _db.item on dp.itemId equals i.itemId
-                            join ep in _db.estado_pedido on dp.estadoPedidoId equals ep.estadopedidoId
-                            where dp.pedidoId == pedidoId
-                            select new
-                            {
-                                PedidoId = dp.pedidoId,
-                                DetalleId = dp.dePedidoId,
-                                Item = dp.itemId,
-                                Nombre = i.nombre,
-                                Precio = i.precio,
-                                Url_img = i.url_img,
-                                subCategoria = i.subCategoriaId,
-                                EstadoPedidoId = ep.estadopedidoId,
-                                EstadoNombre = ep.nombre
-                            }).ToList();
+			ViewData["listadetalle"] = detalleP;
+			ViewData["pedidoDetalle"] = pedido;
 
-            ViewData["listadetalle"] = detalleP;
-            ViewData["pedidoDetalle"] = pedido;
+			return View();
+		}
 
-            return View();
-        }
 
-        [HttpPost]
+		[HttpPost]
         [Autenticacion]
         public IActionResult MarcarComoEntregado(int detallePedidoId)
         {

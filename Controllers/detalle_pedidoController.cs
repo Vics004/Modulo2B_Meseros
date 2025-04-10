@@ -142,58 +142,60 @@ namespace Modulo2B_Meseros.Controllers
         }
 
 
-        //Parte de Fer
-        [Autenticacion]
-        public IActionResult Edit(int id, int subid)
-        {
-            var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
-                            join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
-                            join E in _DulceSaborDbContexto.estado_pedido on dp.estadoPedidoId equals E.estadopedidoId
-                            join SC in _DulceSaborDbContexto.subCategoria on I.subCategoriaId equals SC.subCategoriaId
-                            where dp.pedidoId == id && I.subCategoriaId == subid
-                            select new
-                            {
-                                DetalleId = dp.dePedidoId,
-                                Item = dp.itemId,
-                                Nombre = I.nombre,
-                                Precio = I.precio,
-                                Comentario = dp.comentario,
-                                Estado = E.nombre,
-                                SubId = I.subCategoriaId,
-                                SubCategoriaNombre = SC.nombre,
-                                Itemurl = I.url_img
-                            }).ToList();
+		//Parte de Fer
+		[Autenticacion]
+		public IActionResult Edit(int id, int subid)
+		{
+			
+			var detalleP = (from dp in _DulceSaborDbContexto.detalle_pedido
+							join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
+							join E in _DulceSaborDbContexto.estado_pedido on dp.estadoPedidoId equals E.estadopedidoId
+							join SC in _DulceSaborDbContexto.subCategoria on I.subCategoriaId equals SC.subCategoriaId
+							where dp.pedidoId == id && I.subCategoriaId == subid && E.nombre != "Cancelado" 
+							select new
+							{
+								DetalleId = dp.dePedidoId,
+								Item = dp.itemId,
+								Nombre = I.nombre,
+								Precio = I.precio,
+								Comentario = dp.comentario,
+								Estado = E.nombre,
+								SubId = I.subCategoriaId,
+								SubCategoriaNombre = SC.nombre,
+								Itemurl = I.url_img
+							}).ToList();
 
-            // Obtener todas las subcategorías y detalles para el menú lateral
-            var todosDetalles = (from dp in _DulceSaborDbContexto.detalle_pedido
-                                 join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
-                                 join SC in _DulceSaborDbContexto.subCategoria on I.subCategoriaId equals SC.subCategoriaId
-                                 where dp.pedidoId == id
-                                 select new
-                                 {
-                                     DetalleId = dp.dePedidoId,
-                                     Item = dp.itemId,
-                                     Nombre = I.nombre,
-                                     SubCategoriaId = I.subCategoriaId,
-                                     SubCategoriaNombre = SC.nombre
-                                 }).ToList();
+			// Obtener todas las subcategorías y detalles para el menú lateral
+			var todosDetalles = (from dp in _DulceSaborDbContexto.detalle_pedido
+								 join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
+								 join SC in _DulceSaborDbContexto.subCategoria on I.subCategoriaId equals SC.subCategoriaId
+								 join E in _DulceSaborDbContexto.estado_pedido on dp.estadoPedidoId equals E.estadopedidoId
+								 where dp.pedidoId == id && E.nombre != "Cancelado" 
+								 select new
+								 {
+									 DetalleId = dp.dePedidoId,
+									 Item = dp.itemId,
+									 Nombre = I.nombre,
+									 SubCategoriaId = I.subCategoriaId,
+									 SubCategoriaNombre = SC.nombre
+								 }).ToList();
 
-            // Agrupar por subcategoría para el menú lateral
-            var detallesAgrupados = todosDetalles
-                .GroupBy(d => d.SubCategoriaNombre)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(d => (object)new { d.DetalleId, d.Item, d.Nombre, d.SubCategoriaId, d.SubCategoriaNombre }).ToList()
-                );
+			// Agrupar por subcategoría para el menú lateral
+			var detallesAgrupados = todosDetalles
+				.GroupBy(d => d.SubCategoriaNombre)
+				.ToDictionary(
+					g => g.Key,
+					g => g.Select(d => (object)new { d.DetalleId, d.Item, d.Nombre, d.SubCategoriaId, d.SubCategoriaNombre }).ToList()
+				);
 
-            ViewData["detallesAgrupados"] = detallesAgrupados;
-            ViewData["listadetalle2"] = detalleP;
-            ViewData["pedidoId"] = id;
+			ViewData["detallesAgrupados"] = detallesAgrupados;
+			ViewData["listadetalle2"] = detalleP;
+			ViewData["pedidoId"] = id;
 
+			return View();
+		}
 
-            return View();
-        }
-        [Autenticacion]
+		[Autenticacion]
         [HttpPost]
 		public IActionResult Delete(int id)
 		{
@@ -217,7 +219,11 @@ namespace Modulo2B_Meseros.Controllers
                     }
                 }
 
-				_DulceSaborDbContexto.detalle_pedido.Remove(detalleP);
+				detalleP.estadoPedidoId = _DulceSaborDbContexto.estado_pedido
+				.Where(ep => ep.nombre == "Cancelado")
+				.Select(ep => ep.estadopedidoId)
+				.FirstOrDefault();
+
 				_DulceSaborDbContexto.SaveChanges();
 				return RedirectToAction("Pedido", "Mesas", new { pedidoId = pedidoId });
 			}

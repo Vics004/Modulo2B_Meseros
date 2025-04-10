@@ -49,10 +49,13 @@
                     
 
                     <!-- eliminar -->
-                    <form asp-action="Delete" method="post" onsubmit="return confirm('⚠️ ¿Eliminar pedido? ⚠️\n\nEsta acción no se puede deshacer');">
-                        <input type="hidden" name="id" value="@pedido.DetalleId" />
-                        <button type="submit" class="delete-btn">🗑️</button>
-                    </form>
+                    @if (pedido.Estado == "Solicitado")
+                    {
+                        <form asp-action="Delete" method="post" onsubmit="return confirm('⚠️ ¿Eliminar pedido? ⚠️\n\nEsta acción no se puede deshacer');">
+                            <input type="hidden" name="id" value="@pedido.DetalleId" />
+                            <button type="submit" class="delete-btn">🗑️</button>
+                        </form>
+                    }
 
 
                     <!-- Comentario-->
