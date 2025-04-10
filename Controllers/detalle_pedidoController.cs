@@ -100,47 +100,6 @@ namespace Modulo2B_Meseros.Controllers
 		}
 
 
-        // Mostrar Subcategorías de una Categoría
-        [Autenticacion]
-        public IActionResult SubCategorias(int categoriaId)
-		{
-			var subCategorias = _DulceSaborDbContexto.subCategoria
-				.Where(s => s.categoriaId == categoriaId)
-				.ToList();
-
-			return PartialView("_SubCategorias", subCategorias); //actualizar la sección dinámica
-		}
-
-        // Mostrar Ítems de una Subcategoría
-        [Autenticacion]
-        public IActionResult Items(int subCategoriaId)
-		{
-			var items = _DulceSaborDbContexto.item
-				.Where(i => i.subCategoriaId == subCategoriaId)
-				.ToList();
-
-			return PartialView("_Items", items);
-		}
-
-        [Autenticacion]
-        // GET: detalle_pedidoController
-        public IActionResult Index()
-        {
-            var pedido = (from p in _DulceSaborDbContexto.pedido
-                          select new
-                          {
-                              MesaID = p.mesaId,
-                              Mesa = "Mesa " + p.mesaId,
-                              PedidoId = p.pedidoId
-
-                          }).ToList();
-
-
-
-            ViewData["listapedido"] = pedido;
-            return View();
-        }
-
 
 		//Parte de Fer
 		[Autenticacion]
@@ -165,7 +124,7 @@ namespace Modulo2B_Meseros.Controllers
 								Itemurl = I.url_img
 							}).ToList();
 
-			// Obtener todas las subcategorías y detalles para el menú lateral
+			// Obtener todas las subcategorias y detalles
 			var todosDetalles = (from dp in _DulceSaborDbContexto.detalle_pedido
 								 join I in _DulceSaborDbContexto.item on dp.itemId equals I.itemId
 								 join SC in _DulceSaborDbContexto.subCategoria on I.subCategoriaId equals SC.subCategoriaId
@@ -174,21 +133,21 @@ namespace Modulo2B_Meseros.Controllers
 								 select new
 								 {
 									 DetalleId = dp.dePedidoId,
-									 Item = dp.itemId,
-									 Nombre = I.nombre,
 									 SubCategoriaId = I.subCategoriaId,
 									 SubCategoriaNombre = SC.nombre
 								 }).ToList();
 
-			// Agrupar por subcategoría para el menú lateral
-			var detallesAgrupados = todosDetalles
+            // Agrupacion por subcategoría para menu lateral
+            var detallesAgrupados = todosDetalles
 				.GroupBy(d => d.SubCategoriaNombre)
 				.ToDictionary(
 					g => g.Key,
-					g => g.Select(d => (object)new { d.DetalleId, d.Item, d.Nombre, d.SubCategoriaId, d.SubCategoriaNombre }).ToList()
+					g => g.Select(d => (object)new { d.DetalleId, d.SubCategoriaId, d.SubCategoriaNombre }).ToList()
 				);
 
-			ViewData["detallesAgrupados"] = detallesAgrupados;
+
+
+            ViewData["detallesAgrupados"] = detallesAgrupados;
 			ViewData["listadetalle2"] = detalleP;
 			ViewData["pedidoId"] = id;
 
@@ -207,11 +166,21 @@ namespace Modulo2B_Meseros.Controllers
 			{
 				var pedidoId = detalleP.pedidoId;
 
-                var pedido = _DulceSaborDbContexto.pedido.FirstOrDefault(p => p.pedidoId == pedidoId);
+                var pedido  = (from p in _DulceSaborDbContexto.pedido
+                               where p.pedidoId == pedidoId
+                               select p).FirstOrDefault();
+
+                //var pedido2 = _DulceSaborDbContexto.pedido.FirstOrDefault(p => p.pedidoId == pedidoId);
+
+                //Buscamos el item para actualizar el total del pedido
 
                 if (pedido != null)
                 {
-                    var item = _DulceSaborDbContexto.item.FirstOrDefault(i => i.itemId == detalleP.itemId);
+                    var item = (from i in _DulceSaborDbContexto.item
+                                where i.itemId == detalleP.itemId
+                                select i).FirstOrDefault();
+
+                    //var item2 = _DulceSaborDbContexto.item.FirstOrDefault(i => i.itemId == detalleP.itemId);
                     if (item != null)
                     {
                         decimal subtotal = item.precio;
@@ -219,12 +188,19 @@ namespace Modulo2B_Meseros.Controllers
                     }
                 }
 
-				detalleP.estadoPedidoId = _DulceSaborDbContexto.estado_pedido
+                //Buscamos cual Id tiene como estado "cancelado"
+
+                detalleP.estadoPedidoId = (from ep in _DulceSaborDbContexto.estado_pedido
+                                            where ep.nombre == "Cancelado"
+                                            select ep.estadopedidoId
+                                            ).FirstOrDefault();
+
+                /*detalleP.estadoPedidoId = _DulceSaborDbContexto.estado_pedido
 				.Where(ep => ep.nombre == "Cancelado")
 				.Select(ep => ep.estadopedidoId)
-				.FirstOrDefault();
+				.FirstOrDefault();*/
 
-				_DulceSaborDbContexto.SaveChanges();
+                _DulceSaborDbContexto.SaveChanges();
 				return RedirectToAction("Pedido", "Mesas", new { pedidoId = pedidoId });
 			}
 			return NotFound();

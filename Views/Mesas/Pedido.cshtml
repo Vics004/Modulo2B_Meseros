@@ -39,20 +39,24 @@
                             </span>
                         </td>
                         <td>
-                            @if (detalle.EstadoPedidoId != 4 && detalle.EstadoPedidoId != 5)
+                            @if (detalle.EstadoPedidoId != 4 && detalle.EstadoPedidoId != 5 && detalle.EstadoPedidoId == 3)
                             {
                                 <form asp-action="MarcarComoEntregado" method="post" class="d-inline">
                                     <input type="hidden" name="detallePedidoId" value="@detalle.DetalleId" />
                                     <button type="submit" class="btn btn-warning text-white" style="background-color:green; border-block-color:green;">Entregado</button>
                                 </form>
                             }
-                            <a asp-controller="detalle_pedido"
-                               asp-action="Edit"
-                               asp-route-id="@detalle.PedidoId"
-                               asp-route-subid="@detalle.subCategoria"
-                               class="btn btn-warning text-white">
-                                Editar
-                            </a>
+                            @if ( detalle.EstadoPedidoId == 1 )
+                            {
+                                <a asp-controller="detalle_pedido"
+                                   asp-action="Edit"
+                                   asp-route-id="@detalle.PedidoId"
+                                   asp-route-subid="@detalle.subCategoria"
+                                   class="btn btn-warning text-white">
+                                    Editar
+                                </a>
+                            }
+                            
                         </td>
                     </tr>
                 }

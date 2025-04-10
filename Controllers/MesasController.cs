@@ -108,7 +108,7 @@ namespace Modulo2B_Meseros.Controllers
 			var detalleP = (from dp in _db.detalle_pedido
 							join i in _db.item on dp.itemId equals i.itemId
 							join ep in _db.estado_pedido on dp.estadoPedidoId equals ep.estadopedidoId
-							where dp.pedidoId == pedidoId && ep.nombre != "Cancelado" 
+							where dp.pedidoId == pedidoId 
 							select new
 							{
 								PedidoId = dp.pedidoId,

@@ -51,22 +51,23 @@
                     <!-- eliminar -->
                     @if (pedido.Estado == "Solicitado")
                     {
-                        <form asp-action="Delete" method="post" onsubmit="return confirm('⚠️ ¿Eliminar pedido? ⚠️\n\nEsta acción no se puede deshacer');">
+                        <form asp-action="Delete" method="post" onsubmit="return confirm('⚠️ ¿Cancelar pedido? ⚠️\n\nEsta acción no se puede deshacer');">
                             <input type="hidden" name="id" value="@pedido.DetalleId" />
                             <button type="submit" class="delete-btn">🗑️</button>
                         </form>
+                    
+
+
+                        <!-- Comentario-->
+                        <div id="comentario-@pedido.DetalleId" class="comentario-box">
+                            <form asp-action="Actualizar" method="post">
+                            <textarea id="comentario-textarea-@pedido.DetalleId" name="comentario" class="form-control">@pedido.Comentario</textarea>
+                                <input type="hidden" name="detalleId" value="@pedido.DetalleId" />
+                                <input type="hidden" name="subID" id="subID" value="@pedido.SubId" />
+                            <button type="submit" class="btn btn-info mt-1">Guardar</button>
+                            </form>
+                        </div>
                     }
-
-
-                    <!-- Comentario-->
-                    <div id="comentario-@pedido.DetalleId" class="comentario-box">
-                        <form asp-action="Actualizar" method="post">
-                        <textarea id="comentario-textarea-@pedido.DetalleId" name="comentario" class="form-control">@pedido.Comentario</textarea>
-                            <input type="hidden" name="detalleId" value="@pedido.DetalleId" />
-                            <input type="hidden" name="subID" id="subID" value="@pedido.SubId" />
-                        <button type="submit" class="btn btn-info mt-1">Guardar</button>
-                        </form>
-                    </div>
                 </div>
             }
 
