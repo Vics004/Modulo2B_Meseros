@@ -170,8 +170,6 @@ namespace Modulo2B_Meseros.Controllers
                                where p.pedidoId == pedidoId
                                select p).FirstOrDefault();
 
-                //var pedido2 = _DulceSaborDbContexto.pedido.FirstOrDefault(p => p.pedidoId == pedidoId);
-
                 //Buscamos el item para actualizar el total del pedido
 
                 if (pedido != null)
@@ -180,7 +178,6 @@ namespace Modulo2B_Meseros.Controllers
                                 where i.itemId == detalleP.itemId
                                 select i).FirstOrDefault();
 
-                    //var item2 = _DulceSaborDbContexto.item.FirstOrDefault(i => i.itemId == detalleP.itemId);
                     if (item != null)
                     {
                         decimal subtotal = item.precio;
@@ -195,10 +192,6 @@ namespace Modulo2B_Meseros.Controllers
                                             select ep.estadopedidoId
                                             ).FirstOrDefault();
 
-                /*detalleP.estadoPedidoId = _DulceSaborDbContexto.estado_pedido
-				.Where(ep => ep.nombre == "Cancelado")
-				.Select(ep => ep.estadopedidoId)
-				.FirstOrDefault();*/
 
                 _DulceSaborDbContexto.SaveChanges();
 				return RedirectToAction("Pedido", "Mesas", new { pedidoId = pedidoId });
