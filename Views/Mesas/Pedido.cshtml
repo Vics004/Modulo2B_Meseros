@@ -19,9 +19,9 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th>Id</th>
-						<th>ItemId</th>
-						<th>Nombre Item</th>
+						<th>Imagen</th>
+						<th>Producto</th>
+						<th>Precio</th>
 						<th>Acciones</th>
 
 					</tr>
@@ -45,9 +45,9 @@
 					@foreach (var detalle in (IEnumerable<dynamic>)ViewData["listadetalle"])
 					{
 						<tr>
-							<td>@detalle.DetalleId</td>
-							<td>@detalle.Item</td>
+							<td> <img src = "@detalle.Url_img"/> </td>
 							<td>@detalle.Nombre</td>
+							<td>$@detalle.Precio</td>
 							<td>
 								<a asp-controller="detalle_pedido"
 								   asp-action="Edit"
@@ -74,3 +74,12 @@
         <button type="submit" class="btn btn-lg mt-3" style="background-color: orangered; color: white;">Cerrar pedido</button>
     </form>
 </div>
+
+<style>
+	img {
+		width: 50px;
+		height: 50px;
+		object-fit: cover;
+		margin-left: 10px;
+	}
+</style>

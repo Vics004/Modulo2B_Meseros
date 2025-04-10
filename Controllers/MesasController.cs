@@ -117,8 +117,9 @@ namespace Modulo2B_Meseros.Controllers
 								DetalleId = dp.dePedidoId,
 								Item = dp.itemId,
 								Nombre = I.nombre,
-								subCategoria = I.subCategoriaId
-
+								subCategoria = I.subCategoriaId,
+                                Precio = I.precio,
+                                Url_img = I.url_img
 							}).ToList();
 
 			ViewData["listadetalle"] = detalleP;
