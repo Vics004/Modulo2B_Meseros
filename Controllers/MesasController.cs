@@ -18,38 +18,34 @@ namespace Modulo2B_Meseros.Controllers
         public IActionResult Index()
         {
             var mesasOcupadas = (from m in _db.mesas
-                                join p in _db.pedido on m.mesaId equals p.mesaId into pedidosMesa
-                                from p in pedidosMesa
-                                    .Where(p => !p.estado) 
-                                    .OrderByDescending(p => p.fechaHoraInicio) 
-                                    .Take(1) 
-                                    .DefaultIfEmpty()
-                                where m.estado == "Ocupado" && p != null
-                                select new
-                                {
-                                    mesaId = m.mesaId,
-                                    numeroMesa = m.numeroMesa,
-                                    capacidad = m.capacidad,
-                                    pedidoId = p.pedidoId,
-                                    fechaPedido = p.fechaHoraInicio 
-                                }
-                            ).OrderByDescending(x => x.fechaPedido) 
-                            .ToList();
+                                 join p in _db.pedido on m.mesaId equals p.mesaId into pedidosMesa
+                                 from p in (from temp in pedidosMesa
+                                            where !temp.estado
+                                            orderby temp.fechaHoraInicio descending
+                                            select temp).Take(1).DefaultIfEmpty()
+                                 where m.estado == "Ocupado" && p != null
+                                 orderby p.fechaHoraInicio descending
+                                 select new
+                                 {
+                                     mesaId = m.mesaId,
+                                     numeroMesa = m.numeroMesa,
+                                     capacidad = m.capacidad,
+                                     pedidoId = p.pedidoId,
+                                     fechaPedido = p.fechaHoraInicio
+                                 }).ToList();
 
             ViewData["listadoMesasOcupadas"] = mesasOcupadas;
-
             return View();
         }
 
         [Autenticacion]
         public IActionResult Index1()
         {
-            var mesasDisponibles = _db.mesas
-                .Where(m => m.estado == "Disponible")
-                .ToList();
+            var mesasDisponibles = (from m in _db.mesas
+                                    where m.estado == "Disponible"
+                                    select m).ToList();
 
             ViewData["listadoMesasDisponibles"] = mesasDisponibles;
-
             return View();
         }
 
@@ -91,6 +87,8 @@ namespace Modulo2B_Meseros.Controllers
             ViewData["pedidoDetalle"] = pedidoDetalle;
             return RedirectToAction("Pedido", new { pedidoId = nuevoPedido.pedidoId });
         }
+
+
 		[Autenticacion]
 		public IActionResult Pedido(int pedidoId)
 		{
