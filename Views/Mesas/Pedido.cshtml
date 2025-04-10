@@ -39,22 +39,33 @@
                             </span>
                         </td>
                         <td>
-                            @if (detalle.EstadoPedidoId != 4 && detalle.EstadoPedidoId != 5 && detalle.EstadoPedidoId == 3)
+                            @if (detalle.EstadoPedidoId == 1)
                             {
-                                <form asp-action="MarcarComoEntregado" method="post" class="d-inline">
+                                using (Html.BeginForm("MarcarComoEnProceso", null, FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    <input type="hidden" name="detallePedidoId" value="@detalle.DetalleId" />
+                                    <button type="submit" class="btn btn-warning text-white" style="background-color:orange; border-block-color:orange;">En Proceso</button>
+                                }
+                            }
+                            @if (detalle.EstadoPedidoId == 2)
+                            {
+                                using (Html.BeginForm("MarcarComoFinalizado", null, FormMethod.Post, new { @class = "d-inline" }))
+                                {
+                                    <input type="hidden" name="detallePedidoId" value="@detalle.DetalleId" />
+                                    <button type="submit" class="btn btn-warning text-white" style="background-color:darkorange; border-block-color:darkorange;">Finalizar</button>
+                                }
+                            }
+                            @if (detalle.EstadoPedidoId == 3)
+                            {
+                                using (Html.BeginForm("MarcarComoEntregado", null, FormMethod.Post, new { @class = "d-inline" }))
+                                {
                                     <input type="hidden" name="detallePedidoId" value="@detalle.DetalleId" />
                                     <button type="submit" class="btn btn-warning text-white" style="background-color:green; border-block-color:green;">Entregar</button>
-                                </form>
+                                }
                             }
-                            @if ( detalle.EstadoPedidoId == 1 )
+                            @if (detalle.EstadoPedidoId == 1)
                             {
-                                <a asp-controller="detalle_pedido"
-                                   asp-action="Edit"
-                                   asp-route-id="@detalle.PedidoId"
-                                   asp-route-subid="@detalle.subCategoria"
-                                   class="btn btn-warning text-white">
-                                    Editar
-                                </a>
+                                @Html.ActionLink("Editar", "Edit", "detalle_pedido", new { id = detalle.PedidoId, subid = detalle.subCategoria }, new { @class = "btn btn-warning text-white" })
                             }
                             
                         </td>
@@ -70,14 +81,15 @@
             new { id = pedido.Pedido.pedidoId },
             new { @class = "btn btn-lg mt-3", style = "background-color: orange; color: white;" })
 
-    <form asp-action="CerrarPedido" method="post" class="d-inline">
+    @using (Html.BeginForm("CerrarPedido", null, FormMethod.Post, new { @class = "d-inline" }))
+    {
         <input type="hidden" name="pedidoId" value="@pedido.Pedido.pedidoId" />
         <button type="submit" class="btn btn-lg mt-3"
                 style="background-color: orangered; color: white;"
         @(todosEntregadosOCancelados ? "" : "disabled")>
             Cerrar pedido
         </button>
-    </form>
+    }
 
     @if (TempData["Error"] != null)
     {

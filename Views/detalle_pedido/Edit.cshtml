@@ -41,20 +41,25 @@
 
                     <span class="estado">@pedido.Estado</span>
 
-                    <!-- Botón para comentario -->
-                    <button type="button" class="btn btn-sm edit-btn" onclick="toggleComentario(@pedido.DetalleId)">
-                        ✏️ Editar comentario
-                    </button>
+                    
 
                     
 
                     <!-- eliminar -->
                     @if (pedido.Estado == "Solicitado")
                     {
+
+                        <!-- Botón para comentario -->
+                        <button type="button" class="btn btn-sm edit-btn" onclick="toggleComentario(@pedido.DetalleId)">
+                            ✏️ Editar comentario
+                        </button>
+
                         <form asp-action="Delete" method="post" onsubmit="return confirm('⚠️ ¿Cancelar pedido? ⚠️\n\nEsta acción no se puede deshacer');">
                             <input type="hidden" name="id" value="@pedido.DetalleId" />
                             <button type="submit" class="delete-btn">🗑️</button>
                         </form>
+
+                        
                     
 
 

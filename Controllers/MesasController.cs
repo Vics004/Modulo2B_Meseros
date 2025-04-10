@@ -149,6 +149,42 @@ namespace Modulo2B_Meseros.Controllers
 
         [HttpPost]
         [Autenticacion]
+        public IActionResult MarcarComoEnProceso(int detallePedidoId)
+        {
+
+            var detalle = (from dp in _db.detalle_pedido
+                           where dp.dePedidoId == detallePedidoId
+                           select dp).FirstOrDefault();
+
+            if (detalle != null)
+            {
+                detalle.estadoPedidoId = 2;
+                _db.SaveChanges();
+            }
+
+            return RedirectToAction("Pedido", new { pedidoId = detalle.pedidoId });
+        }
+
+        [HttpPost]
+        [Autenticacion]
+        public IActionResult MarcarComoFinalizado(int detallePedidoId)
+        {
+
+            var detalle = (from dp in _db.detalle_pedido
+                           where dp.dePedidoId == detallePedidoId
+                           select dp).FirstOrDefault();
+
+            if (detalle != null)
+            {
+                detalle.estadoPedidoId = 3;
+                _db.SaveChanges();
+            }
+
+            return RedirectToAction("Pedido", new { pedidoId = detalle.pedidoId });
+        }
+
+        [HttpPost]
+        [Autenticacion]
         public IActionResult CerrarPedido(int pedidoId)
         {
             var pedido = (from p in _db.pedido
